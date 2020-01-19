@@ -1,0 +1,3 @@
+W|D:\Random\Datein\nnweights
+F|D:\Random\Datein\testimg\true
+T|D:\Random\Datein\testimg\true
