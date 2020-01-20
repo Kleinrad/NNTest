@@ -7,19 +7,12 @@ package TestEnviroment;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import javafx.stage.FileChooser;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 
 /**
  *
@@ -31,7 +24,6 @@ public class MainPageCenter extends javax.swing.JPanel {
     private DefaultListModel listModel = new DefaultListModel();
     
     private ImageIcon imgPreview = new ImageIcon(".\\misc\\img\\noImage.jpg");
-    private File imgFile = new File("");
     
     private ImageIcon runIdleIcon = new ImageIcon(".\\misc\\img\\runNoToggle.png");
     private ImageIcon runToggleIcon = new ImageIcon(".\\misc\\img\\runToggle.png");
@@ -197,7 +189,6 @@ public class MainPageCenter extends javax.swing.JPanel {
         int result = fchooser.showOpenDialog(this);
         if(result == JFileChooser.APPROVE_OPTION){
             imgPreview = new ImageIcon(fchooser.getSelectedFile().getPath());
-            imgFile = fchooser.getSelectedFile();
         }
         updatePreviewImg();
         uploadButton.setBorder(null);
