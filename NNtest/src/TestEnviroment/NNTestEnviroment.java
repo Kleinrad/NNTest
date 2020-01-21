@@ -115,6 +115,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         init();
+        setLookAndFeel();
     }//GEN-LAST:event_formWindowOpened
 
     private void decreaseScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decreaseScaleActionPerformed
