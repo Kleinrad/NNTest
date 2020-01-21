@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  * @author fabia
  */
 public class NNTest {
-    public static GUI newGui;
+    public static TestEnviroment.NNTestEnviroment newGui;
     /**
      * @param args the command line arguments
      */
@@ -26,8 +26,9 @@ public class NNTest {
                 hiddenNums[counter] = (int)(5000 * i);
                 counter++;
             }
-            CNNetwork nn = new CNNetwork(40000, hiddenNums, 4, 40, "Onata");
-            newGui = new GUI();
+            CNNetwork nn = new CNNetwork("Onata");
+            newGui = new TestEnviroment.NNTestEnviroment();
+            newGui.setVisible(true);
         } catch (Exception ex) {
             Logger.getLogger(NNTest.class.getName()).log(Level.SEVERE, null, ex);
         }

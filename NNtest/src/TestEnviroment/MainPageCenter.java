@@ -8,7 +8,6 @@ package TestEnviroment;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
-import java.io.File;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -49,6 +48,9 @@ public class MainPageCenter extends javax.swing.JPanel {
         paint(imageField, EnvUtils.primColor);
         paint(imageContainer, EnvUtils.primColor);
         
+        runButton.setIcon(runIdleIcon);
+        uploadButton.setIcon(uploadIdleIcon);
+        trainButton.setIcon(trainIdleIcon);
         
         updatePreviewImg();
         
@@ -111,7 +113,6 @@ public class MainPageCenter extends javax.swing.JPanel {
         southPanel.setLayout(new java.awt.BorderLayout());
         southPanel.add(northStut, java.awt.BorderLayout.NORTH);
 
-        uploadButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\imageIcon.png")); // NOI18N
         uploadButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 uploadButtonMousePressed(evt);
@@ -120,7 +121,6 @@ public class MainPageCenter extends javax.swing.JPanel {
         south2.add(uploadButton);
         south2.add(filler2);
 
-        runButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\runNoToggle.png")); // NOI18N
         runButton.setMaximumSize(new java.awt.Dimension(50, 50));
         runButton.setPreferredSize(new java.awt.Dimension(65, 65));
         runButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -134,7 +134,6 @@ public class MainPageCenter extends javax.swing.JPanel {
         south2.add(runButton);
         south2.add(filler5);
 
-        trainButton.setIcon(new javax.swing.ImageIcon("D:\\Random\\Git\\NNTest\\NNtest\\misc\\img\\trainNoToggle.png")); // NOI18N
         trainButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 trainButtonMousePressed(evt);

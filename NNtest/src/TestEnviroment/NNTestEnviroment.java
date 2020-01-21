@@ -178,9 +178,9 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     }
 
     private void setLoading(boolean isLoading){
-        for(Component c : getComponents()){
+        for(Component c : this.getComponents()){
             c.setEnabled(isLoading);
-            c.setCursor(isLoading ? Cursor.getPredefinedCursor(12) : Cursor.getDefaultCursor());
+            c.setCursor(isLoading ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
         }
     }
     

@@ -28,9 +28,8 @@ public class CNNetwork {
     
     private SimpleMatrix[][] fcData = new SimpleMatrix[3][];
     
-    public CNNetwork(String arc, SimpleMatrix[][][] filters) {
+    public CNNetwork(String arc) {
         this.arc = arc;
-        this.filters = filters;
     }
     
     private void init(){
