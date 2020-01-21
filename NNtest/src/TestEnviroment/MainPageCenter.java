@@ -7,16 +7,11 @@ package TestEnviroment;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -27,13 +22,16 @@ public class MainPageCenter extends javax.swing.JPanel {
     
     private DefaultListModel listModel = new DefaultListModel();
     
-    private ImageIcon imgPreview = new ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\noImage.jpg");
+    private ImageIcon imgPreview = new ImageIcon(".\\misc\\img\\noImage.jpg");
     
-    private ImageIcon runIdleIcon = new ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\runNoToggle.png");
-    private ImageIcon runToggleIcon = new ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\runToggle.png");
+    private ImageIcon runIdleIcon = new ImageIcon(".\\misc\\img\\runNoToggle.png");
+    private ImageIcon runToggleIcon = new ImageIcon(".\\misc\\img\\runToggle.png");
     
-    private ImageIcon uploadIdleIcon = new ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\imageIcon.png");
-    private ImageIcon uploadToggleIcon = new ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\imageIconToggle.png");
+    private ImageIcon uploadIdleIcon = new ImageIcon(".\\misc\\img\\imageIcon.png");
+    private ImageIcon uploadToggleIcon = new ImageIcon(".\\misc\\img\\imageIconToggle.png");
+    
+    private ImageIcon trainToggleIcon = new ImageIcon(".\\misc\\img\\trainToggle.png");
+    private ImageIcon trainIdleIcon = new ImageIcon(".\\misc\\img\\trainNoToggle.png");
     
     private double previewScale = 0.5;
     /**
@@ -50,6 +48,9 @@ public class MainPageCenter extends javax.swing.JPanel {
         paint(imageField, EnvUtils.primColor);
         paint(imageContainer, EnvUtils.primColor);
         
+        runButton.setIcon(runIdleIcon);
+        uploadButton.setIcon(uploadIdleIcon);
+        trainButton.setIcon(trainIdleIcon);
         
         updatePreviewImg();
         
@@ -92,9 +93,10 @@ public class MainPageCenter extends javax.swing.JPanel {
         northStut = new javax.swing.Box.Filler(new java.awt.Dimension(0, 10), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 10));
         south2 = new javax.swing.JPanel();
         uploadButton = new javax.swing.JLabel();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 0), new java.awt.Dimension(15, 0), new java.awt.Dimension(10, 32767));
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 0), new java.awt.Dimension(40, 0), new java.awt.Dimension(10, 32767));
         runButton = new javax.swing.JLabel();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 50), new java.awt.Dimension(0, 50), new java.awt.Dimension(32767, 50));
+        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(35, 0), new java.awt.Dimension(20, 32767));
+        trainButton = new javax.swing.JLabel();
         southStut = new javax.swing.Box.Filler(new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5), new java.awt.Dimension(32767, 5));
         imageContainer = new javax.swing.JPanel();
         filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
@@ -111,19 +113,14 @@ public class MainPageCenter extends javax.swing.JPanel {
         southPanel.setLayout(new java.awt.BorderLayout());
         southPanel.add(northStut, java.awt.BorderLayout.NORTH);
 
-        uploadButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\imageIcon.png")); // NOI18N
         uploadButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 uploadButtonMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                uploadButtonMouseReleased(evt);
             }
         });
         south2.add(uploadButton);
         south2.add(filler2);
 
-        runButton.setIcon(new javax.swing.ImageIcon("C:\\Users\\fabia\\OneDrive\\NeuralNetwork\\NNTest_0.3\\NNtest_21.12\\misc\\img\\runNoToggle.png")); // NOI18N
         runButton.setMaximumSize(new java.awt.Dimension(50, 50));
         runButton.setPreferredSize(new java.awt.Dimension(65, 65));
         runButton.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -135,7 +132,14 @@ public class MainPageCenter extends javax.swing.JPanel {
             }
         });
         south2.add(runButton);
-        south2.add(filler1);
+        south2.add(filler5);
+
+        trainButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                trainButtonMousePressed(evt);
+            }
+        });
+        south2.add(trainButton);
 
         southPanel.add(south2, java.awt.BorderLayout.CENTER);
         southPanel.add(southStut, java.awt.BorderLayout.SOUTH);
@@ -148,7 +152,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         imageContainer.add(filler3, java.awt.BorderLayout.NORTH);
 
         image.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        image.setPreferredSize(new java.awt.Dimension(360, 100));
+        image.setPreferredSize(new java.awt.Dimension(260, 100));
         imageContainer.add(image, java.awt.BorderLayout.CENTER);
         imageContainer.add(filler4, java.awt.BorderLayout.SOUTH);
 
@@ -156,10 +160,11 @@ public class MainPageCenter extends javax.swing.JPanel {
 
         add(imageField, java.awt.BorderLayout.CENTER);
 
-        imageProperties.setBorder(null);
         imageProperties.setMinimumSize(new java.awt.Dimension(50, 50));
 
-        jList1.setPreferredSize(new java.awt.Dimension(75, 90));
+        jList1.setMaximumSize(new java.awt.Dimension(100, 90));
+        jList1.setMinimumSize(new java.awt.Dimension(100, 90));
+        jList1.setPreferredSize(new java.awt.Dimension(100, 90));
         imageProperties.setViewportView(jList1);
 
         add(imageProperties, java.awt.BorderLayout.EAST);
@@ -168,26 +173,38 @@ public class MainPageCenter extends javax.swing.JPanel {
     
     private void runButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMousePressed
         runButton.setIcon(runToggleIcon);
+        runButton.setBorder(EnvUtils.buttonBorder);
     }//GEN-LAST:event_runButtonMousePressed
 
     private void runButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMouseReleased
         runButton.setIcon(runIdleIcon);
+        runButton.setBorder(null);
     }//GEN-LAST:event_runButtonMouseReleased
 
     private void uploadButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_uploadButtonMousePressed
         uploadButton.setIcon(uploadToggleIcon);
+        uploadButton.setBorder(EnvUtils.buttonBorder);
+        JFileChooser fchooser = new JFileChooser();
+        int result = fchooser.showOpenDialog(this);
+        if(result == JFileChooser.APPROVE_OPTION){
+            imgPreview = new ImageIcon(fchooser.getSelectedFile().getPath());
+        }
+        updatePreviewImg();
+        uploadButton.setBorder(null);
+        uploadButton.setIcon(uploadIdleIcon);
     }//GEN-LAST:event_uploadButtonMousePressed
 
-    private void uploadButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_uploadButtonMouseReleased
-        uploadButton.setIcon(uploadIdleIcon);
-    }//GEN-LAST:event_uploadButtonMouseReleased
+    private void trainButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_trainButtonMousePressed
+        trainButton.setIcon(trainToggleIcon);
+        trainButton.setBorder(EnvUtils.buttonBorder);
+    }//GEN-LAST:event_trainButtonMousePressed
 
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
+    private javax.swing.Box.Filler filler5;
     private javax.swing.JLabel image;
     private javax.swing.JPanel imageContainer;
     private javax.swing.JPanel imageField;
@@ -198,6 +215,7 @@ public class MainPageCenter extends javax.swing.JPanel {
     private javax.swing.JPanel south2;
     private javax.swing.JPanel southPanel;
     private javax.swing.Box.Filler southStut;
+    private javax.swing.JLabel trainButton;
     private javax.swing.JLabel uploadButton;
     // End of variables declaration//GEN-END:variables
 
