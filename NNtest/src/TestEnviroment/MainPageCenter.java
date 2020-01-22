@@ -43,10 +43,10 @@ public class MainPageCenter extends javax.swing.JPanel {
     }
     
     private void startUp(){
-        paint(south2, EnvUtils.primColor);
-        paint(southPanel, EnvUtils.primColor);
-        paint(imageField, EnvUtils.primColor);
-        paint(imageContainer, EnvUtils.primColor);
+        paint_(south2, EnvUtils.primColor);
+        paint_(southPanel, EnvUtils.primColor);
+        paint_(imageField, EnvUtils.primColor);
+        paint_(imageContainer, EnvUtils.primColor);
         
         runButton.setIcon(runIdleIcon);
         uploadButton.setIcon(uploadIdleIcon);
@@ -73,7 +73,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         image.setIcon(new ImageIcon(convImage));
     }
     
-    private static void paint(JComponent comp, Color color){
+    private static void paint_(JComponent comp, Color color){
         for(Component c : comp.getComponents()){
             c.setBackground(color);
         }

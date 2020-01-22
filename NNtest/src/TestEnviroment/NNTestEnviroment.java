@@ -5,6 +5,7 @@
  */
 package TestEnviroment;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.util.logging.Level;
@@ -19,7 +20,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author fabia
  */
 public class NNTestEnviroment extends javax.swing.JFrame {
-   
+    MainPageCenter mainPageCenter1 = new MainPageCenter();
     /**
      * Creates new form NNTestEnviroment
      */
@@ -36,7 +37,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPageCenter1 = new TestEnviroment.MainPageCenter();
         cMenuBar1 = new TestEnviroment.CMenuBar();
         fileMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -55,7 +55,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                 formWindowOpened(evt);
             }
         });
-        getContentPane().add(mainPageCenter1, java.awt.BorderLayout.CENTER);
 
         fileMenu.setMnemonic('F');
         fileMenu.setText("File");
@@ -116,6 +115,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         init();
         setLookAndFeel();
+        add(mainPageCenter1, BorderLayout.CENTER);
     }//GEN-LAST:event_formWindowOpened
 
     private void decreaseScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decreaseScaleActionPerformed
@@ -193,7 +193,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     private javax.swing.JMenuItem increaseScale;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private TestEnviroment.MainPageCenter mainPageCenter1;
     private javax.swing.JMenu previewMenu;
     private javax.swing.JMenu viewMenu;
     // End of variables declaration//GEN-END:variables
