@@ -7,6 +7,7 @@ package nntest;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -21,49 +22,14 @@ import org.ejml.simple.SimpleMatrix;
  * @author fabia
  */
 public class useImage {
-    SimpleMatrix[] rgbMatrix;
     
-    Dimension imageDimension = new Dimension(); 
-    private static boolean pause = false;
-    private static boolean cancleTraining = false;
-    ImageDivider div;
-    double[] imageResult = new double[4];
-    NameInfo imgInfo;
-
-    public useImage(BufferedImage image, String name) throws Exception {
+    public static SimpleMatrix[] getMatrix(Image img){
+        BufferedImage image = (BufferedImage)img;
+        SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
         for(int i = 0; i < 3; i++){
-            SimpleMatrix colorMatrix = new SimpleMatrix(image.getHeight(), image.getWidth());
-            rgbMatrix[0] = colorMatrix;
+            SimpleMatrix colorMatrix = new SimpleMatrix(4320, 7920);
+            rgbMatrix[i] = colorMatrix;
         }
-        String[] nameInfoRaw = name.split("_");
-        imgInfo= new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-        
-        //setMatrix(image);
-        getMatrix(image);
-    }
-    
-    public useImage(BufferedImage image) throws Exception {
-        for(int i = 0; i < 3; i++){
-            SimpleMatrix colorMatrix = new SimpleMatrix(image.getHeight(), image.getWidth());
-            rgbMatrix[0] = colorMatrix;
-        }
-        //setMatrix(image);
-        getMatrix(image);
-    }
-    
-    private int gcd(int bigValue,int smallValue){
-        while(bigValue != smallValue){
-            if(smallValue > bigValue){
-                int tmp = smallValue;
-                smallValue = bigValue;
-                bigValue = tmp;
-            }
-            bigValue = bigValue - smallValue;
-        }
-        return bigValue;
-    }
-    
-    private void getMatrix(BufferedImage image){
         int imgWidth = image.getWidth();
         int imgHeight = image.getHeight();
         
@@ -75,6 +41,8 @@ public class useImage {
                 }
             }
         }
+        
+        return rgbMatrix;
     }    
             
     //Old Version
@@ -245,112 +213,4 @@ public class useImage {
 //        
 //        imageDisplay.setVisible(true);
 //    }
-    
-    private int testStepOver(int i, int width, ArrayList<Integer> arr){
-        int steps = 0;
-        if( i % width != 0 || i == 0){
-            return steps;
-        }
-        if(arr.size() == 1){
-            return 1;
-        }
-        int testNumber = i / width;
-        
-        for(int j = 1; j < arr.size(); j++){
-            if(testNumber % arr.get(j - 1) == 0){
-                steps++;
-                testNumber = testNumber / arr.get(j);
-            }
-        }
-        return steps;
-    }
-    
-    public static void startTraningCycle(int cycles, String trueImageFolderPath, String falseImageFolderPath, CNNetwork network){
-        try {
-            File[] trueImages = new File(trueImageFolderPath).listFiles();
-            File[] falseImages = new File(falseImageFolderPath).listFiles();
-            useImage getImageData;
-            TagImages results = new TagImages(trueImageFolderPath);
-            for(int i=0; i < cycles; i++){
-                if(!pause && !cancleTraining){
-                    double rand = Math.random() * 2;
-                    if(rand <= 1){
-                        rand = (Math.random() * trueImages.length);
-                        try{
-                            BufferedImage img = ImageIO.read(trueImages[(int)rand]);
-                            getImageData = new useImage(img, trueImages[(int)rand].getName());
-                            String[] nameInfoRaw = trueImages[(int)rand].getName().split("_");
-                            NameInfo nameInfo = new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-                            
-                            double[] convertedResult = covertResult(results.getResultMap(nameInfo), getImageData.div);
-                            
-                            network.train(getImageData.rgbMatrix, convertedResult);
-                            NNTest.newGui.updateMainProcess(i + 1, cycles);
-                        } catch (IllegalArgumentException e) {}
-                        catch(Exception e){
-                            System.out.println(e);
-                            i--;
-                            continue;
-                        }
-                    }else{
-                        rand = Math.random() * falseImages.length;
-                        try{
-                            BufferedImage img = ImageIO.read(falseImages[(int)rand]);
-                            getImageData = new useImage(img, trueImages[(int)rand].getName());
-                            String[] nameInfoRaw = falseImages[(int)rand].getName().split("_");
-                            NameInfo nameInfo = new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-                            
-                            double[] convertedResult = covertResult(results.getResultMap(nameInfo), getImageData.div);
-                            
-                            network.train(getImageData.rgbMatrix, convertedResult);
-                            NNTest.newGui.updateMainProcess(i + 1, cycles);
-                        } catch (IllegalArgumentException e) {}
-                        catch(Exception e){
-                            i--;
-                            continue;
-                        }
-                    }
-                    if((i % 2000 == 0 && i != 0) || (i + 1 == cycles && cycles >= 100)){
-                        network.saveNetworkWeights();
-                    }
-                }else{
-                    while(pause){
-                        if(cancleTraining){
-                            cancleTraining = false;
-                            pause = false;
-                            NNTest.newGui.setTrainingButtons();
-                            return;
-                        }
-                        Thread.sleep(500);
-                    }
-                }
-            }
-            NNTest.newGui.setTrainingButtons();
-        } catch (Exception ex) {
-            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private static double[] covertResult(Integer[] result, ImageDivider divider){
-        double[] convert = new double[4];
-        
-        convert[0] = (double)result[0] / divider.divider;
-        convert[1] = (double)result[1] / divider.divider;
-        convert[2] = (double)result[2] / divider.divider;
-        convert[3] = (double)result[3] / divider.divider;
-        
-        return convert;
-    }
-     
-    public static void pause(){
-        pause = true;
-    }
-    
-    public static void cancelPause(){
-        pause = false;
-    }
-    
-    public static void cancelTraining(){
-        cancleTraining = true;
-    }
 }

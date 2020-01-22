@@ -19,19 +19,9 @@ public class NNTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        try {
-            int[] hiddenNums = new int[40];
-            int counter = 0;
-            for(double i=1; i > 0.4; i -= 0.015){
-                hiddenNums[counter] = (int)(5000 * i);
-                counter++;
-            }
-            CNNetwork nn = new CNNetwork("Onata");
-            newGui = new TestEnviroment.NNTestEnviroment();
-            newGui.setVisible(true);
-        } catch (Exception ex) {
-            Logger.getLogger(NNTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        CNNetwork nn = new CNNetwork("Onata");
+        newGui = new TestEnviroment.NNTestEnviroment(nn);
+        newGui.setVisible(true);
     }
 
 }

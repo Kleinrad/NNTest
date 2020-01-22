@@ -18,7 +18,7 @@ import javax.swing.JFileChooser;
  * @author fabia
  */
 public class MainPageCenter extends javax.swing.JPanel {
-
+    nntest.CNNetwork net;
     
     private DefaultListModel listModel = new DefaultListModel();
     
@@ -37,7 +37,8 @@ public class MainPageCenter extends javax.swing.JPanel {
     /**
      * Creates new form MainPageCenter
      */
-    public MainPageCenter() {
+    public MainPageCenter(nntest.CNNetwork net) {
+        this.net = net;
         initComponents();
         startUp();
     }
@@ -174,6 +175,8 @@ public class MainPageCenter extends javax.swing.JPanel {
     private void runButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMousePressed
         runButton.setIcon(runToggleIcon);
         runButton.setBorder(EnvUtils.buttonBorder);
+        
+        net.predict(nntest.useImage.getMatrix(imgPreview.getImage()));
     }//GEN-LAST:event_runButtonMousePressed
 
     private void runButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMouseReleased
