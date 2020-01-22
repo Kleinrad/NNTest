@@ -18,11 +18,10 @@ public class CNNetwork {
     //Variables to calculate The Accuracy
     private int computed = 0;
     private int correctComputed = 0;
-    private int amountOfConvolutionalLayers = 6;
     private double dropOutChance = 0;
     private String arc;
     
-    private SimpleMatrix[][][] filters = new SimpleMatrix[amountOfConvolutionalLayers][][];
+    private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
     private SimpleMatrix[][] fcWeights = new SimpleMatrix[3][];
     
@@ -30,10 +29,26 @@ public class CNNetwork {
     
     public CNNetwork(String arc) {
         this.arc = arc;
+        init();
     }
     
     private void init(){
+        filters[0] = new SimpleMatrix[3][];
+        filters[1] = new SimpleMatrix[4][];
         
+        for(int i=0; i < 3; i++){
+            filters[0][i] = new SimpleMatrix[2];
+            for(int j=0; j < 2; j++){
+                filters[0][i][j] = initFilter(3);
+            }
+        }
+        
+        for(int i=0; i < 4; i++){
+            filters[1][i] = new SimpleMatrix[3];
+            for(int j=0; j < 3; j++){
+                filters[1][i][j] = initFilter(3);
+            }
+        }
     }
     
     //inputMatrixs is the output of useImage | arc is the used architecture
@@ -45,7 +60,7 @@ public class CNNetwork {
         if(arc.equals("xception")){
             return 0.0;//predictXception(inputMatrixs);
         }
-        
+        inceptionCycle(inputMatrixs);
         return 0;
     }
     
@@ -150,6 +165,15 @@ public class CNNetwork {
 //        
 //        return cycleResult;
 //    }
+    
+    private static SimpleMatrix initFilter (int dim){
+        SimpleMatrix filter= new SimpleMatrix(dim, dim);
+       
+        for(int i=0; i < dim * dim; i++){
+            filter.set(i, Math.random() * 2 - 1);
+        }
+        return filter;
+    }
     
     private static SimpleMatrix[] covolute(SimpleMatrix[] inputMatrices, SimpleMatrix filter){
         
@@ -341,16 +365,6 @@ public class CNNetwork {
     //Sigmoid Fuction return relativ to the input a number between 0 and 1
     private static double sigmoid(double x){
         return 1 / ( 1 + Math.exp(-x));
-    }
-    
-    private static SimpleMatrix initFilter (int dim){
-        SimpleMatrix filter = new SimpleMatrix(dim, dim);
-        
-        for(int i=0; i < dim*dim; i++){
-            filter.set(i, Math.random() * 2 - 1);
-        }
-        
-        return filter;
     }
     
     private static SimpleMatrix dsigmoid(SimpleMatrix matrix){

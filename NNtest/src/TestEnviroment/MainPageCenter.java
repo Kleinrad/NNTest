@@ -8,6 +8,12 @@ package TestEnviroment;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -18,7 +24,7 @@ import javax.swing.JFileChooser;
  * @author fabia
  */
 public class MainPageCenter extends javax.swing.JPanel {
-    nntest.CNNetwork net;
+    private nntest.CNNetwork net;
     
     private DefaultListModel listModel = new DefaultListModel();
     
@@ -34,6 +40,7 @@ public class MainPageCenter extends javax.swing.JPanel {
     private ImageIcon trainIdleIcon = new ImageIcon(".\\misc\\img\\trainNoToggle.png");
     
     private double previewScale = 0.5;
+    private File imgFile;
     /**
      * Creates new form MainPageCenter
      */
@@ -173,10 +180,14 @@ public class MainPageCenter extends javax.swing.JPanel {
 
     
     private void runButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMousePressed
-        runButton.setIcon(runToggleIcon);
-        runButton.setBorder(EnvUtils.buttonBorder);
-        
-        net.predict(nntest.useImage.getMatrix(imgPreview.getImage()));
+        try {
+            runButton.setIcon(runToggleIcon);
+            runButton.setBorder(EnvUtils.buttonBorder);
+            BufferedImage bImage = ImageIO.read(imgFile);
+            net.predict(nntest.useImage.getMatrix(bImage));
+        } catch (IOException ex) {
+            Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_runButtonMousePressed
 
     private void runButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMouseReleased
@@ -191,6 +202,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         int result = fchooser.showOpenDialog(this);
         if(result == JFileChooser.APPROVE_OPTION){
             imgPreview = new ImageIcon(fchooser.getSelectedFile().getPath());
+            imgFile = fchooser.getSelectedFile();
         }
         updatePreviewImg();
         uploadButton.setBorder(null);

@@ -6,15 +6,8 @@
 package nntest;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import nntest.tagImages.TagImages;
 import org.ejml.simple.SimpleMatrix;
 
 /**
@@ -23,11 +16,10 @@ import org.ejml.simple.SimpleMatrix;
  */
 public class useImage {
     
-    public static SimpleMatrix[] getMatrix(Image img){
-        BufferedImage image = (BufferedImage)img;
+    public static SimpleMatrix[] getMatrix(BufferedImage image){
         SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
         for(int i = 0; i < 3; i++){
-            SimpleMatrix colorMatrix = new SimpleMatrix(4320, 7920);
+            SimpleMatrix colorMatrix = new SimpleMatrix(2160, 3840);
             rgbMatrix[i] = colorMatrix;
         }
         int imgWidth = image.getWidth();
