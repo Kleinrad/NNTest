@@ -29,23 +29,25 @@ public class CNNetwork {
     
     private SimpleMatrix[][] fcData = new SimpleMatrix[3][];
     
+    private Integer[] convReps = {2, 3};
+    
     public CNNetwork(String arc) {
         this.arc = arc;
         init();
     }
     
     private void init(){
-        filters[0] = new SimpleMatrix[3][];
-        filters[1] = new SimpleMatrix[4][];
+        filters[0] = new SimpleMatrix[convReps[0]][];
+        filters[1] = new SimpleMatrix[convReps[1]][];
         
-        for(int i=0; i < 2; i++){
+        for(int i=0; i < convReps[0]; i++){
             filters[0][i] = new SimpleMatrix[2];
             for(int j=0; j < 2; j++){
-                filters[0][i][j] = initFilter(3);
+                filters[0][i][j] = initFilter(5);
             }
         }
         
-        for(int i=0; i < 3; i++){
+        for(int i=0; i < convReps[1]; i++){
             filters[1][i] = new SimpleMatrix[3];
             for(int j=0; j < 3; j++){
                 filters[1][i][j] = initFilter(3);
@@ -69,33 +71,50 @@ public class CNNetwork {
     
     
     private SimpleMatrix[] inceptionCycle(SimpleMatrix[] resMatrixs){
-        SimpleMatrix[] resFirstCycle = resMatrixs;
-        System.out.println(resFirstCycle[0].numCols() + " | " + resFirstCycle[1].numRows());
-        for(int i=0; i < 2; i++){
-            resFirstCycle = covolute(resFirstCycle, filters[0][i][0], imgDimension);
-            resFirstCycle = relu(resFirstCycle, imgDimension);
-            resFirstCycle = covolute(resFirstCycle, filters[0][i][1], imgDimension);
-            resFirstCycle = maxPooling(resFirstCycle, 3, imgDimension);
-            System.out.println(resFirstCycle[0].numCols() + " | " + resFirstCycle[1].numRows());
+        SimpleMatrix[][] resFirstCycle = new SimpleMatrix[convReps[0]][3];
+        
+        for(int i=0; i < convReps[0]; i++){
+            SimpleMatrix[] inMatrix = resMatrixs;
+            resFirstCycle[i] = covolute(inMatrix, filters[0][i][0], imgDimension);
+            inMatrix = resFirstCycle[i];
+            
+            resFirstCycle[i] = relu(inMatrix, imgDimension);
+            inMatrix = resFirstCycle[i];
+            
+            resFirstCycle[i] = covolute(inMatrix, filters[0][i][1], imgDimension);
+            inMatrix = resFirstCycle[i];
+            
+            resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
         }
         
-        SimpleMatrix[] resSecCycle = resFirstCycle;
-        for(int i=0; i < 3; i++){
-            resSecCycle = covolute(resSecCycle, filters[1][i][0], imgDimension);
-            resSecCycle = relu(resSecCycle, imgDimension);
-            resSecCycle = covolute(resSecCycle, filters[1][i][1], imgDimension);
-            resSecCycle = relu(resSecCycle, imgDimension);
-            resSecCycle = covolute(resSecCycle, filters[1][i][2], imgDimension);
-            resSecCycle = maxPooling(resSecCycle, 3, imgDimension);
-            System.out.println(resSecCycle[0].numCols() + " | " + resSecCycle[1].numRows());
+        SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][3];
+        for(int i=0; i < convReps[1]; i++){
+            for(int j=0; j < resFirstCycle.length; j++){
+                SimpleMatrix[] inMatrix = resFirstCycle[j];
+                resSecCycle[i] = covolute(inMatrix, filters[1][i][0], imgDimension);
+                inMatrix = resSecCycle[i];
+                
+                resSecCycle[i] = relu(inMatrix, imgDimension);
+                inMatrix = resSecCycle[i];
+                
+                resSecCycle[i] = covolute(inMatrix, filters[1][i][1], imgDimension);
+                inMatrix = resSecCycle[i];
+                
+                resSecCycle[i] = relu(inMatrix, imgDimension);
+                inMatrix = resSecCycle[i];
+                
+                resSecCycle[i] = covolute(inMatrix, filters[1][i][2], imgDimension);
+                inMatrix = resSecCycle[i];
+                resSecCycle[i] = maxPooling(inMatrix, 3, imgDimension);
+            }
         }
         flattenCLO(resSecCycle);
         return resMatrixs;
     }
     //Flattens output of convolution Layers
-    private SimpleMatrix[] flattenCLO(SimpleMatrix[] inputMatrixs){
-        System.out.println(inputMatrixs.length * inputMatrixs[0].numCols() * inputMatrixs[0].numRows());
-        return inputMatrixs;
+    private SimpleMatrix[] flattenCLO(SimpleMatrix[][] inputMatrixs){
+        System.out.println(inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].numCols() * inputMatrixs[0][0].numRows());
+        return null;
     }
     
 //    private double predictXception(SimpleMatrix[] resMatrixs){

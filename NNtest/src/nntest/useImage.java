@@ -6,7 +6,7 @@
 package nntest;
 
 import java.awt.Color;
-import java.awt.Image;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import org.ejml.simple.SimpleMatrix;
 
@@ -16,10 +16,10 @@ import org.ejml.simple.SimpleMatrix;
  */
 public class useImage {
     
-    public static SimpleMatrix[] getMatrix(BufferedImage image){
+    public static SimpleMatrix[] getMatrix(BufferedImage image, Dimension resolution){
         SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
         for(int i = 0; i < 3; i++){
-            SimpleMatrix colorMatrix = new SimpleMatrix(2160, 3840);
+            SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
             rgbMatrix[i] = colorMatrix;
         }
         int imgWidth = image.getWidth();

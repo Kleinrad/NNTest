@@ -7,11 +7,13 @@ package TestEnviroment;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -184,16 +186,24 @@ public class MainPageCenter extends javax.swing.JPanel {
 
     
     private void runButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMousePressed
+        runButton.setIcon(runToggleIcon);
+        runButton.setBorder(EnvUtils.buttonBorder);
+        repaint();
+        setLoading(true);
+        CompletableFuture.runAsync(() -> startPredict());
+    }//GEN-LAST:event_runButtonMousePressed
+
+    private void startPredict(){
         try {
-            runButton.setIcon(runToggleIcon);
-            runButton.setBorder(EnvUtils.buttonBorder);
             BufferedImage bImage = ImageIO.read(imgFile);
-            net.predict(nntest.useImage.getMatrix(bImage), imgDimension);
+            RunDialog runDialog = new RunDialog(this, true);
+            net.predict(nntest.useImage.getMatrix(bImage, new Dimension(720, 1280)), imgDimension);
+            setLoading(false);
         } catch (IOException ex) {
             Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_runButtonMousePressed
-
+    }
+    
     private void runButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMouseReleased
         runButton.setIcon(runIdleIcon);
         runButton.setBorder(null);
@@ -253,5 +263,12 @@ public class MainPageCenter extends javax.swing.JPanel {
     public void refresh(){
         updatePreviewImg();
         repaint();
+    }
+    
+    private void setLoading(boolean isLoading){
+        for(Component c : this.getComponents()){
+            c.setEnabled(isLoading);
+            c.setCursor(isLoading ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
+        }
     }
 }
