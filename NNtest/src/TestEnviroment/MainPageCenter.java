@@ -7,6 +7,7 @@ package TestEnviroment;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,6 +42,7 @@ public class MainPageCenter extends javax.swing.JPanel {
     
     private double previewScale = 0.5;
     private File imgFile;
+    private Dimension imgDimension = new Dimension();
     /**
      * Creates new form MainPageCenter
      */
@@ -79,6 +81,8 @@ public class MainPageCenter extends javax.swing.JPanel {
         
         Image convImage = imgPreview.getImage().getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
         image.setIcon(new ImageIcon(convImage));
+        imgDimension.height = imgHeight;
+        imgDimension.width = imgWidth;
     }
     
     private static void paint_(JComponent comp, Color color){
@@ -184,7 +188,7 @@ public class MainPageCenter extends javax.swing.JPanel {
             runButton.setIcon(runToggleIcon);
             runButton.setBorder(EnvUtils.buttonBorder);
             BufferedImage bImage = ImageIO.read(imgFile);
-            net.predict(nntest.useImage.getMatrix(bImage));
+            net.predict(nntest.useImage.getMatrix(bImage), imgDimension);
         } catch (IOException ex) {
             Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
         }

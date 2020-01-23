@@ -5,6 +5,7 @@
  */
 package nntest;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import org.ejml.simple.SimpleMatrix;
 /**
@@ -20,6 +21,7 @@ public class CNNetwork {
     private int correctComputed = 0;
     private double dropOutChance = 0;
     private String arc;
+    private Dimension imgDimension = new Dimension();
     
     private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
@@ -36,14 +38,14 @@ public class CNNetwork {
         filters[0] = new SimpleMatrix[3][];
         filters[1] = new SimpleMatrix[4][];
         
-        for(int i=0; i < 3; i++){
+        for(int i=0; i < 2; i++){
             filters[0][i] = new SimpleMatrix[2];
             for(int j=0; j < 2; j++){
                 filters[0][i][j] = initFilter(3);
             }
         }
         
-        for(int i=0; i < 4; i++){
+        for(int i=0; i < 3; i++){
             filters[1][i] = new SimpleMatrix[3];
             for(int j=0; j < 3; j++){
                 filters[1][i][j] = initFilter(3);
@@ -52,7 +54,8 @@ public class CNNetwork {
     }
     
     //inputMatrixs is the output of useImage | arc is the used architecture
-    public double predict(SimpleMatrix[] inputMatrixs){
+    public double predict(SimpleMatrix[] inputMatrixs, Dimension imgDimension){
+        this.imgDimension = imgDimension;
         if(!checkInputMatrices(inputMatrixs)){
             throw new IllegalArgumentException("Matrices not compatible!");
         }
@@ -67,23 +70,26 @@ public class CNNetwork {
     
     private SimpleMatrix[] inceptionCycle(SimpleMatrix[] resMatrixs){
         SimpleMatrix[] resFirstCycle = resMatrixs;
-        for(int i=0; i < 3; i++){
-            resFirstCycle = covolute(resFirstCycle, filters[0][i][0]);
-            resFirstCycle = relu(resFirstCycle);
-            resFirstCycle = covolute(resFirstCycle, filters[0][i][1]);
-            resFirstCycle = maxPooling(resFirstCycle, 3);
+        System.out.println(resFirstCycle[0].numCols() + " | " + resFirstCycle[1].numRows());
+        for(int i=0; i < 2; i++){
+            resFirstCycle = covolute(resFirstCycle, filters[0][i][0], imgDimension);
+            resFirstCycle = relu(resFirstCycle, imgDimension);
+            resFirstCycle = covolute(resFirstCycle, filters[0][i][1], imgDimension);
+            resFirstCycle = maxPooling(resFirstCycle, 3, imgDimension);
+            System.out.println(resFirstCycle[0].numCols() + " | " + resFirstCycle[1].numRows());
         }
         
         SimpleMatrix[] resSecCycle = resFirstCycle;
-        for(int i=0; i < 4; i++){
-            resSecCycle = covolute(resSecCycle, filters[1][i][0]);
-            resSecCycle = relu(resSecCycle);
-            resSecCycle = covolute(resSecCycle, filters[1][i][1]);
-            resSecCycle = relu(resSecCycle);
-            resSecCycle = covolute(resSecCycle, filters[1][i][2]);
-            resSecCycle = maxPooling(resSecCycle, 3);
+        for(int i=0; i < 3; i++){
+            resSecCycle = covolute(resSecCycle, filters[1][i][0], imgDimension);
+            resSecCycle = relu(resSecCycle, imgDimension);
+            resSecCycle = covolute(resSecCycle, filters[1][i][1], imgDimension);
+            resSecCycle = relu(resSecCycle, imgDimension);
+            resSecCycle = covolute(resSecCycle, filters[1][i][2], imgDimension);
+            resSecCycle = maxPooling(resSecCycle, 3, imgDimension);
+            System.out.println(resSecCycle[0].numCols() + " | " + resSecCycle[1].numRows());
         }
-        flattenCLO(resMatrixs);
+        flattenCLO(resSecCycle);
         return resMatrixs;
     }
     //Flattens output of convolution Layers
@@ -175,7 +181,7 @@ public class CNNetwork {
         return filter;
     }
     
-    private static SimpleMatrix[] covolute(SimpleMatrix[] inputMatrices, SimpleMatrix filter){
+    private static SimpleMatrix[] covolute(SimpleMatrix[] inputMatrices, SimpleMatrix filter, Dimension imgDimension){
         
         //3D Matrix with width, height and the 3 Color channels Red Green and Blue
         //represented by the length of the SimpleMatrix array
@@ -189,7 +195,7 @@ public class CNNetwork {
         
         //getting the output Dimensions
         int newWidth = inputMatrices[0].numCols() - (filterColumns - 1);
-        int newHeight = inputMatrices[0].numRows()- (filterRows - 1);
+        int newHeight = inputMatrices[0].numRows() - (filterRows - 1);
         
         //initializing the ouput Matrices
         outputMatrices[0] = new SimpleMatrix(newHeight, newWidth);
@@ -200,8 +206,8 @@ public class CNNetwork {
         //and moving the filte over the image Matrix
         SimpleMatrix redMatrix = inputMatrices[0];
         
-        for(int heightPosition=0; heightPosition + filterRows - 1 < redMatrix.numRows(); heightPosition += stride){
-            for(int widthPosition=0; widthPosition + filterColumns -1 < redMatrix.numCols(); widthPosition += stride){
+        for(int heightPosition=0; heightPosition + filterRows - 1 < imgDimension.height; heightPosition += stride){
+            for(int widthPosition=0; widthPosition + filterColumns -1 < imgDimension.width; widthPosition += stride){
                 double value = dotProductLoop(redMatrix, filter, new Point(widthPosition, heightPosition));
                 outputMatrices[0].set(heightPosition, widthPosition, value);
             }
@@ -210,8 +216,8 @@ public class CNNetwork {
         //Iterating line by line over Green Matrix
         SimpleMatrix greenMatrix = inputMatrices[1];
         
-        for(int heightPosition=0; heightPosition + filterRows - 1 < redMatrix.numRows(); heightPosition += stride){
-            for(int widthPosition=0; widthPosition + filterColumns -1 < redMatrix.numCols(); widthPosition += stride){
+        for(int heightPosition=0; heightPosition + filterRows - 1 < imgDimension.height; heightPosition += stride){
+            for(int widthPosition=0; widthPosition + filterColumns -1 < imgDimension.width; widthPosition += stride){
                 double value = dotProductLoop(greenMatrix, filter, new Point(widthPosition, heightPosition));
                 outputMatrices[1].set(heightPosition, widthPosition, value);
             }
@@ -220,12 +226,14 @@ public class CNNetwork {
         //Iterating line by line over Blue Matrix
         SimpleMatrix blueMatrix = inputMatrices[2];
         
-        for(int heightPosition=0; heightPosition + filterRows - 1 < redMatrix.numRows(); heightPosition += stride){
-            for(int widthPosition=0; widthPosition + filterColumns -1 < redMatrix.numCols(); widthPosition += stride){
+        for(int heightPosition=0; heightPosition + filterRows - 1 < imgDimension.height; heightPosition += stride){
+            for(int widthPosition=0; widthPosition + filterColumns -1 < imgDimension.width; widthPosition += stride){
                 double value = dotProductLoop(blueMatrix, filter, new Point(widthPosition, heightPosition));
                 outputMatrices[2].set(heightPosition, widthPosition, value);
             }
         }
+        imgDimension.height = newHeight;
+        imgDimension.width = newWidth;
         
         return outputMatrices;
     }
@@ -267,7 +275,7 @@ public class CNNetwork {
 //        }
 //    }
 //    
-    private static SimpleMatrix[] relu(SimpleMatrix[] inputMatrices){
+    private static SimpleMatrix[] relu(SimpleMatrix[] inputMatrices, Dimension imgDimension){
         SimpleMatrix[] reluMatrices = new SimpleMatrix[inputMatrices.length];
         
         int newRows = inputMatrices[0].numRows();
@@ -279,10 +287,10 @@ public class CNNetwork {
         for(int i=0; i < 3; i++){
             SimpleMatrix matrix = inputMatrices[i];
             
-            for(int heightPos=0; heightPos < matrix.numRows(); heightPos++){
-                for(int widthPos=0; widthPos < matrix.numCols(); widthPos++){
-                    double matrixValue = matrix.get(widthPos, heightPos);
-                    reluMatrices[i].set(widthPos, heightPos, Math.max(matrixValue, 0.0));
+            for(int heightPos=0; heightPos < imgDimension.height; heightPos++){
+                for(int widthPos=0; widthPos < imgDimension.width; widthPos++){
+                    double matrixValue = matrix.get(heightPos, widthPos);
+                    reluMatrices[i].set(heightPos, widthPos, Math.max(matrixValue, 0.0));
                 }
             }
         }
@@ -292,7 +300,7 @@ public class CNNetwork {
     
     //Max Pooling is used for extracting significant features and getting rid of 
     //the liniarity that came from the convolution step and also reduces the information
-    private static SimpleMatrix[] maxPooling(SimpleMatrix[] inputMatrices, int poolingRange){
+    private static SimpleMatrix[] maxPooling(SimpleMatrix[] inputMatrices, int poolingRange, Dimension imgDimension){
         SimpleMatrix[] maxPoolingMatrices = new SimpleMatrix[inputMatrices.length];
         
         //New Dimension for output Matrices
@@ -308,8 +316,8 @@ public class CNNetwork {
         for(int i = 0; i < 3; i++){
             SimpleMatrix matrix = inputMatrices[i];
             //iterating over single Matrix
-            for(int heightPos = 0; heightPos < matrix.numRows(); heightPos += poolingRange){
-                for(int widthPos = 0; widthPos < matrix.numRows(); widthPos += poolingRange){
+            for(int heightPos = 0; heightPos < imgDimension.height; heightPos += poolingRange){
+                for(int widthPos = 0; widthPos < imgDimension.width; widthPos += poolingRange){
 
                     //Simple Max Function
                     double max = max(heightPos, widthPos, poolingRange, matrix);
@@ -317,6 +325,9 @@ public class CNNetwork {
                 }
             }
         }
+        imgDimension.height = newHeight;
+        imgDimension.width = newWidth;
+        
         return maxPoolingMatrices;
     }
     
