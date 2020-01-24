@@ -33,7 +33,6 @@ import nntest.CNNetwork;
  */
 public class NNTestEnviroment extends javax.swing.JFrame {
     private MainPageCenter mainPageCenter1;
-    private CNNetwork net;
     private JFrame loadingFrame = new JFrame();
     
     public void setLoadingScreen(){
@@ -64,7 +63,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
      * Creates new form NNTestEnviroment
      */
     public void setNet(CNNetwork net){
-        this.net = net;
         mainPageCenter1 = new MainPageCenter(net);
     }
     
@@ -73,7 +71,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     }
     
     public NNTestEnviroment(CNNetwork net) {
-        this.net = net;
         mainPageCenter1 = new MainPageCenter(net);
         initComponents();
     }
