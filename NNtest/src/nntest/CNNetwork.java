@@ -7,6 +7,7 @@ package nntest;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Random;
 import org.ejml.simple.SimpleMatrix;
 /**
  *
@@ -25,9 +26,8 @@ public class CNNetwork {
     
     private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
-    private SimpleMatrix[][] fcWeights = new SimpleMatrix[3][];
+    private SimpleMatrix[] weights = new SimpleMatrix[3];
     
-    private SimpleMatrix[][] fcData = new SimpleMatrix[3][];
     
     private Integer[] convReps = {2, 3};
     
@@ -62,15 +62,13 @@ public class CNNetwork {
             throw new IllegalArgumentException("Matrices not compatible!");
         }
         
-        if(arc.equals("xception")){
-            return 0.0;//predictXception(inputMatrixs);
-        }
-        inceptionCycle(inputMatrixs);
+        SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
+        
         return 0;
     }
     
     
-    private SimpleMatrix[] inceptionCycle(SimpleMatrix[] resMatrixs){
+    private SimpleMatrix inceptionCycle(SimpleMatrix[] resMatrixs){
         SimpleMatrix[][] resFirstCycle = new SimpleMatrix[convReps[0]][3];
         
         for(int i=0; i < convReps[0]; i++){
@@ -108,13 +106,20 @@ public class CNNetwork {
                 resSecCycle[i] = maxPooling(inMatrix, 3, imgDimension);
             }
         }
-        flattenCLO(resSecCycle);
-        return resMatrixs;
+        return flattenCLO(resSecCycle);
     }
     //Flattens output of convolution Layers
-    private SimpleMatrix[] flattenCLO(SimpleMatrix[][] inputMatrixs){
-        System.out.println(inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].numCols() * inputMatrixs[0][0].numRows());
-        return null;
+    private SimpleMatrix flattenCLO(SimpleMatrix[][] inputMatrixs){
+        SimpleMatrix vector = new SimpleMatrix(1, 47196);
+        int idx = 0;
+        for(int i=0; i < inputMatrixs.length; i++){
+            for(int j=0; j < inputMatrixs[i].length; j++){
+                for(int k=0; k < inputMatrixs[i][j].numCols() * inputMatrixs[i][j].numRows(); k++){
+                    vector.set(idx++, inputMatrixs[i][j].get(k));
+                }
+            }
+        }
+        return vector;
     }
     
 //    private double predictXception(SimpleMatrix[] resMatrixs){
