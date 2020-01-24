@@ -21,6 +21,9 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import nntest.useImage;
 
 /**
  *
@@ -33,8 +36,8 @@ public class MainPageCenter extends javax.swing.JPanel {
     
     private ImageIcon imgPreview = new ImageIcon(".\\misc\\img\\noImage.jpg");
     
-    private ImageIcon runIdleIcon = new ImageIcon(".\\misc\\img\\runNoToggle.png");
-    private ImageIcon runToggleIcon = new ImageIcon(".\\misc\\img\\runToggle.png");
+    private ImageIcon runIdleIcon = new ImageIcon(".\\misc\\img\\runButton\\runNoToggle.png");
+    private ImageIcon runToggleIcon = new ImageIcon(".\\misc\\img\\runButton\\runToggle.png");
     
     private ImageIcon uploadIdleIcon = new ImageIcon(".\\misc\\img\\imageIcon.png");
     private ImageIcon uploadToggleIcon = new ImageIcon(".\\misc\\img\\imageIconToggle.png");
@@ -45,6 +48,7 @@ public class MainPageCenter extends javax.swing.JPanel {
     private double previewScale = 0.5;
     private File imgFile;
     private Dimension imgDimension = new Dimension();
+    private boolean runLoading = false;
     /**
      * Creates new form MainPageCenter
      */
@@ -190,15 +194,17 @@ public class MainPageCenter extends javax.swing.JPanel {
         runButton.setBorder(EnvUtils.buttonBorder);
         repaint();
         setLoading(true);
+        CompletableFuture.runAsync(() -> runLoading());
         CompletableFuture.runAsync(() -> startPredict());
     }//GEN-LAST:event_runButtonMousePressed
-
+    
     private void startPredict(){
         try {
+            useImage img = new useImage();
             BufferedImage bImage = ImageIO.read(imgFile);
-            RunDialog runDialog = new RunDialog(this, true);
-            net.predict(nntest.useImage.getMatrix(bImage, new Dimension(720, 1280)), imgDimension);
+            net.predict(img.getMatrix(bImage, new Dimension(1280, 720)), imgDimension);
             setLoading(false);
+            runLoading = false;
         } catch (IOException ex) {
             Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -228,6 +234,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         trainButton.setBorder(EnvUtils.buttonBorder);
     }//GEN-LAST:event_trainButtonMousePressed
 
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler2;
@@ -269,6 +276,42 @@ public class MainPageCenter extends javax.swing.JPanel {
         for(Component c : this.getComponents()){
             c.setEnabled(isLoading);
             c.setCursor(isLoading ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
+        }
+    }
+    
+    private void runLoading(){
+        runLoading = true;
+        
+        for(int i=0; i < 3; i++){
+            try {
+                ImageIcon icon = new ImageIcon(".\\misc\\img\\runButton\\loading\\loading" + i + ".png");
+                runButton.setIcon(icon);
+                Thread.sleep(80);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        while(runLoading){
+            for(int i=3; i < 12; i++){
+                try {
+                    ImageIcon icon = new ImageIcon(".\\misc\\img\\runButton\\loading\\loading" + i + ".png");
+                    runButton.setIcon(icon);
+                    Thread.sleep(70);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+        for(int i=12; i <= 17; i++){
+            try {
+                ImageIcon icon = new ImageIcon(".\\misc\\img\\runButton\\loading\\loading" + i + ".png");
+                runButton.setIcon(icon);
+                Thread.sleep(70);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }

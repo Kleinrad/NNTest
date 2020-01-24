@@ -5,6 +5,10 @@
  */
 package TestEnviroment;
 
+import java.awt.Color;
+import java.awt.Component;
+import javax.swing.JComponent;
+
 /**
  *
  * @author fabia
@@ -17,6 +21,10 @@ public class RunDialog extends javax.swing.JDialog {
     public RunDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        jLabel1.setForeground(EnvUtils.primForground);
+        paint_(jPanel1, EnvUtils.primColor);
+        paint_(jPanel2, EnvUtils.primColor);
+        paint_(jPanel3, EnvUtils.primColor);
     }
 
     /**
@@ -30,8 +38,13 @@ public class RunDialog extends javax.swing.JDialog {
 
         jPanel2 = new javax.swing.JPanel();
         filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jProgressBar1 = new javax.swing.JProgressBar();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jPanel1 = new javax.swing.JPanel();
         filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         runConfirmButton = new javax.swing.JButton();
@@ -40,23 +53,46 @@ public class RunDialog extends javax.swing.JDialog {
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(300, 150));
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
         getContentPane().setLayout(new java.awt.GridLayout(3, 3));
 
         jPanel2.setLayout(new java.awt.GridLayout(2, 0));
         jPanel2.add(filler8);
+        jPanel2.add(filler5);
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Progress");
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel1.setText("Estimated time:");
         jPanel2.add(jLabel1);
 
+        jLabel2.setFont(new java.awt.Font("Yu Gothic", 1, 18)); // NOI18N
+        jLabel2.setText(" ∞");
+        jLabel2.setToolTipText("");
+        jPanel2.add(jLabel2);
+
         getContentPane().add(jPanel2);
-        getContentPane().add(jProgressBar1);
+
+        jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
+        jPanel3.add(filler1);
+        jPanel3.add(jProgressBar1);
+        jPanel3.add(filler3);
+
+        getContentPane().add(jPanel3);
 
         jPanel1.setLayout(new java.awt.GridLayout(2, 0));
         jPanel1.add(filler6);
 
         runConfirmButton.setText("OK");
+        runConfirmButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runConfirmButtonActionPerformed(evt);
+            }
+        });
         jPanel1.add(runConfirmButton);
         jPanel1.add(filler7);
         jPanel1.add(filler4);
@@ -67,57 +103,46 @@ public class RunDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void setProgress(int progress){
+        jProgressBar1.setValue(progress);
+        if(progress == 100){
+            runConfirmButton.setVisible(true);
+        }
+    }
+    
+    private static void paint_(JComponent comp, Color color){
+        for(Component c : comp.getComponents()){
+            c.setBackground(color);
+        }
+        comp.setBackground(color);
+    }
+    
+    private void runConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runConfirmButtonActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_runConfirmButtonActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        runConfirmButton.setVisible(false);
+    }//GEN-LAST:event_formWindowOpened
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(RunDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(RunDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(RunDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(RunDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                RunDialog dialog = new RunDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
+    private javax.swing.Box.Filler filler5;
     private javax.swing.Box.Filler filler6;
     private javax.swing.Box.Filler filler7;
     private javax.swing.Box.Filler filler8;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JButton runConfirmButton;
     // End of variables declaration//GEN-END:variables
