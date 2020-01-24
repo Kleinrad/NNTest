@@ -8,9 +8,20 @@ package TestEnviroment;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nntest.CNNetwork;
@@ -23,9 +34,44 @@ import nntest.CNNetwork;
 public class NNTestEnviroment extends javax.swing.JFrame {
     private MainPageCenter mainPageCenter1;
     private CNNetwork net;
+    private JFrame loadingFrame = new JFrame();
+    
+    public void setLoadingScreen(){
+        loadingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        loadingFrame.setUndecorated(true);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        loadingFrame.setLocation(screenSize.width / 2 - 193, screenSize.height / 2 - 125);
+        loadingFrame.add(new LoadingPanel());
+        loadingFrame.pack();
+        loadingFrame.setVisible(true);
+    }
+    
+    public void removeLoadingScreen(){
+        loadingFrame.setVisible(false);
+    }
+    
+    public static void main(String[] args) {
+        NNTestEnviroment newGui = new NNTestEnviroment();
+        newGui.setLoadingScreen();
+        
+        CNNetwork net = new CNNetwork("Onata");
+        newGui.setNet(net);
+        newGui.setVisible(true);
+        newGui.removeLoadingScreen();
+    }
+    
     /**
      * Creates new form NNTestEnviroment
      */
+    public void setNet(CNNetwork net){
+        this.net = net;
+        mainPageCenter1 = new MainPageCenter(net);
+    }
+    
+    public NNTestEnviroment(){
+        initComponents();
+    }
+    
     public NNTestEnviroment(CNNetwork net) {
         this.net = net;
         mainPageCenter1 = new MainPageCenter(net);
