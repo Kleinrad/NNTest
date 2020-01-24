@@ -8,6 +8,8 @@ package nntest;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ejml.simple.SimpleMatrix;
 /**
  *
@@ -23,6 +25,7 @@ public class CNNetwork {
     private double dropOutChance = 0;
     private String arc;
     private Dimension imgDimension = new Dimension();
+    private FFNetwork fCLayer;
     
     private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
@@ -32,11 +35,18 @@ public class CNNetwork {
     private Integer[] convReps = {2, 3};
     
     public CNNetwork(String arc) {
-        this.arc = arc;
-        init();
+        try {
+            this.arc = arc;
+            init();
+        } catch (Exception ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
-    private void init(){
+    private void init() throws Exception{
+        Integer[] hiddenNums = {10000, 2000};
+        fCLayer = new FFNetwork(47196, hiddenNums, 4, 2);
+        
         filters[0] = new SimpleMatrix[convReps[0]][];
         filters[1] = new SimpleMatrix[convReps[1]][];
         
@@ -56,7 +66,7 @@ public class CNNetwork {
     }
     
     //inputMatrixs is the output of useImage | arc is the used architecture
-    public double predict(SimpleMatrix[] inputMatrixs, Dimension imgDimension){
+    public double[] predict(SimpleMatrix[] inputMatrixs, Dimension imgDimension){
         this.imgDimension = imgDimension;
         if(!checkInputMatrices(inputMatrixs)){
             throw new IllegalArgumentException("Matrices not compatible!");
@@ -64,7 +74,7 @@ public class CNNetwork {
         
         SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
         
-        return 0;
+        return fCLayer.feedForward(inceptionVector);
     }
     
     
