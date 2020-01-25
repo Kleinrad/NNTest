@@ -71,10 +71,10 @@ public class CNNetwork {
         if(!checkInputMatrices(inputMatrixs)){
             throw new IllegalArgumentException("Matrices not compatible!");
         }
-        
+        System.out.println("tt");
         SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
         
-        return fCLayer.feedForward(inceptionVector);
+        return null;//fCLayer.feedForward(inceptionVector);
     }
     
     
@@ -94,28 +94,28 @@ public class CNNetwork {
             
             resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
         }
-        
         SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][3];
         for(int i=0; i < convReps[1]; i++){
             for(int j=0; j < resFirstCycle.length; j++){
                 SimpleMatrix[] inMatrix = resFirstCycle[j];
-                resSecCycle[i] = covolute(inMatrix, filters[1][i][0], imgDimension);
+                resSecCycle[(resFirstCycle.length * i) + j] = covolute(inMatrix, filters[1][i][0], imgDimension);
                 inMatrix = resSecCycle[i];
                 
-                resSecCycle[i] = relu(inMatrix, imgDimension);
+                resSecCycle[(resFirstCycle.length * i) + j] = relu(inMatrix, imgDimension);
                 inMatrix = resSecCycle[i];
                 
-                resSecCycle[i] = covolute(inMatrix, filters[1][i][1], imgDimension);
+                resSecCycle[(resFirstCycle.length * i) + j] = covolute(inMatrix, filters[1][i][1], imgDimension);
                 inMatrix = resSecCycle[i];
                 
-                resSecCycle[i] = relu(inMatrix, imgDimension);
+                resSecCycle[(resFirstCycle.length * i) + j] = relu(inMatrix, imgDimension);
                 inMatrix = resSecCycle[i];
                 
-                resSecCycle[i] = covolute(inMatrix, filters[1][i][2], imgDimension);
+                resSecCycle[(resFirstCycle.length * i) + j] = covolute(inMatrix, filters[1][i][2], imgDimension);
                 inMatrix = resSecCycle[i];
-                resSecCycle[i] = maxPooling(inMatrix, 3, imgDimension);
+                resSecCycle[(resFirstCycle.length * i) + j] = maxPooling(inMatrix, 3, imgDimension);
             }
         }
+        System.out.println("hh");
         return flattenCLO(resSecCycle);
     }
     //Flattens output of convolution Layers
@@ -129,6 +129,7 @@ public class CNNetwork {
                 }
             }
         }
+        System.out.println("bb");
         return vector;
     }
     

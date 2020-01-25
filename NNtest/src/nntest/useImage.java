@@ -8,6 +8,10 @@ package nntest;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ejml.simple.SimpleMatrix;
 
 /**
@@ -16,26 +20,66 @@ import org.ejml.simple.SimpleMatrix;
  */
 public class useImage {
     
-    public static SimpleMatrix[] getMatrix(BufferedImage image, Dimension resolution){
-        SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
+    public static SimpleMatrix[] getMatrix(final BufferedImage image, final Dimension resolution){
+        try {
+            SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
+            for(int i = 0; i < 3; i++){
+                SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
+                rgbMatrix[i] = colorMatrix;
+            }
+            
+            final CountDownLatch cdl = new CountDownLatch(4);
+            final SimpleMatrix[][] parts = new SimpleMatrix[4][];
+            new Thread(() -> {
+                parts[0] = getMatrixPart(image, resolution, 0);
+                cdl.countDown();
+            }).start();
+            new Thread(() -> {
+                parts[1] = getMatrixPart(image, resolution, 1);
+                cdl.countDown();
+            }).start();
+            new Thread(() -> {
+                parts[2] = getMatrixPart(image, resolution, 2);
+                cdl.countDown();
+            }).start();
+            new Thread(() -> {
+                parts[3] = getMatrixPart(image, resolution, 3);
+                cdl.countDown();
+            }).start();
+            
+            cdl.await();
+            for(int j=0; j < 4; j++){
+                for(int i=0; i < 3; i++){
+                    rgbMatrix[i].plus(parts[j][i]);
+                }
+            }
+            return rgbMatrix;
+        } catch (InterruptedException ex) {
+            Logger.getLogger(useImage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }    
+    
+    private static SimpleMatrix[] getMatrixPart(BufferedImage image, Dimension resolution, int part){
+        SimpleMatrix[] rgbPartMatrix = new SimpleMatrix[3];
         for(int i = 0; i < 3; i++){
             SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
-            rgbMatrix[i] = colorMatrix;
+            rgbPartMatrix[i] = colorMatrix;
         }
+        
         int imgWidth = image.getWidth();
         int imgHeight = image.getHeight();
         
         for(int matrixArrayPos=0; matrixArrayPos < 3; matrixArrayPos++){
-            for(int heightPos=0; heightPos < imgHeight; heightPos++){
-                for(int widthPos=0; widthPos < imgWidth; widthPos++){
+            for(int heightPos=(imgHeight / 4) * part; heightPos < (imgHeight / 4) * (part + 1); heightPos++){
+                for(int widthPos=(imgWidth / 4) * part; widthPos < (imgWidth / 4) * (part + 1); widthPos++){
                     Color pixColor = new Color(image.getRGB(widthPos, heightPos));
-                    rgbMatrix[matrixArrayPos].set(heightPos, widthPos, (matrixArrayPos == 0 ? pixColor.getRed() : (matrixArrayPos == 1 ? pixColor.getGreen() : pixColor.getBlue())));
+                    rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, (matrixArrayPos == 0 ? pixColor.getRed() : (matrixArrayPos == 1 ? pixColor.getGreen() : pixColor.getBlue())));
                 }
             }
         }
-        
-        return rgbMatrix;
-    }    
+        return rgbPartMatrix;
+    }
             
     //Old Version
     //very complicated and useless using a CNN

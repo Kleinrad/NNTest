@@ -24,6 +24,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import nntest.useImage;
+import org.ejml.simple.SimpleMatrix;
 
 /**
  *
@@ -202,7 +203,9 @@ public class MainPageCenter extends javax.swing.JPanel {
         try {
             useImage img = new useImage();
             BufferedImage bImage = ImageIO.read(imgFile);
+            SimpleMatrix[] rgbMatrix = img.getMatrix(bImage, new Dimension(1280, 720));
             net.predict(img.getMatrix(bImage, new Dimension(1280, 720)), imgDimension);
+            System.out.println("te");
             setLoading(false);
             runLoading = false;
         } catch (IOException ex) {
