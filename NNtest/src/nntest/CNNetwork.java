@@ -71,7 +71,6 @@ public class CNNetwork {
         if(!checkInputMatrices(inputMatrixs)){
             throw new IllegalArgumentException("Matrices not compatible!");
         }
-        System.out.println("tt");
         SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
         
         return null;//fCLayer.feedForward(inceptionVector);
@@ -94,28 +93,30 @@ public class CNNetwork {
             
             resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
         }
-        SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][3];
+        SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][];
         for(int i=0; i < convReps[1]; i++){
             for(int j=0; j < resFirstCycle.length; j++){
+                int outPos = i * resFirstCycle.length + j;
                 SimpleMatrix[] inMatrix = resFirstCycle[j];
-                resSecCycle[(resFirstCycle.length * i) + j] = covolute(inMatrix, filters[1][i][0], imgDimension);
-                inMatrix = resSecCycle[i];
+                SimpleMatrix[] outMatrix = new SimpleMatrix[3];
+                outMatrix = covolute(inMatrix, filters[1][i][0], imgDimension);
+                inMatrix = outMatrix;
                 
-                resSecCycle[(resFirstCycle.length * i) + j] = relu(inMatrix, imgDimension);
-                inMatrix = resSecCycle[i];
+                outMatrix = relu(inMatrix, imgDimension);
+                inMatrix = outMatrix;
                 
-                resSecCycle[(resFirstCycle.length * i) + j] = covolute(inMatrix, filters[1][i][1], imgDimension);
-                inMatrix = resSecCycle[i];
+                outMatrix = covolute(inMatrix, filters[1][i][1], imgDimension);
+                inMatrix = outMatrix;
                 
-                resSecCycle[(resFirstCycle.length * i) + j] = relu(inMatrix, imgDimension);
-                inMatrix = resSecCycle[i];
+                outMatrix = relu(inMatrix, imgDimension);
+                inMatrix = outMatrix;
                 
-                resSecCycle[(resFirstCycle.length * i) + j] = covolute(inMatrix, filters[1][i][2], imgDimension);
-                inMatrix = resSecCycle[i];
-                resSecCycle[(resFirstCycle.length * i) + j] = maxPooling(inMatrix, 3, imgDimension);
+                outMatrix = covolute(inMatrix, filters[1][i][2], imgDimension);
+                inMatrix = outMatrix;
+                outMatrix = maxPooling(inMatrix, 3, imgDimension);
+                resSecCycle[outPos] = outMatrix;
             }
         }
-        System.out.println("hh");
         return flattenCLO(resSecCycle);
     }
     //Flattens output of convolution Layers
@@ -129,7 +130,6 @@ public class CNNetwork {
                 }
             }
         }
-        System.out.println("bb");
         return vector;
     }
     
@@ -460,11 +460,6 @@ public class CNNetwork {
             }
         }
         return multMatrix;
-    }
-    
-    public void saveNetworkWeights(){
-
-        
     }
     
     private static SimpleMatrix[] initMatricies(SimpleMatrix[] inputMatrixs){
