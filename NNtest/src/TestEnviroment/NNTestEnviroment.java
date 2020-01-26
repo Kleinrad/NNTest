@@ -39,7 +39,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
         loadingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         loadingFrame.setUndecorated(true);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        loadingFrame.setLocation(screenSize.width / 2 - 193, screenSize.height / 2 - 125);
+        loadingFrame.setLocation(screenSize.width / 2 - 249, screenSize.height / 2 - 150);
         loadingFrame.add(new LoadingPanel());
         loadingFrame.pack();
         loadingFrame.setVisible(true);
