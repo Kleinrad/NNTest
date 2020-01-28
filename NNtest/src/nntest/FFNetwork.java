@@ -32,11 +32,6 @@ public class FFNetwork {
     private SimpleMatrix weights_ih;
     private ArrayList<SimpleMatrix> weights_hidden = new ArrayList<SimpleMatrix>();
     private SimpleMatrix weights_ho;
-
-    //Biasis
-    private double bias_ih = Math.random() * 2 - 1;
-    private ArrayList<Double> bias_hidden = new ArrayList<Double>();
-    private double bias_ho = Math.random() * 2 - 1;
     
     public FFNetwork(int inputNum, Integer[] hiddenNum, int outputNum, int hiddenLayers) throws Exception {
         if(hiddenNum.length != hiddenLayers){
@@ -64,21 +59,29 @@ public class FFNetwork {
     public double [] feedForward(SimpleMatrix input) {     
         
         //Multiplay weights_ih with input Matrix | Get Weighted Sum
-        SimpleMatrix inputWeightedSums = weights_ih.mult(input);
-        inputWeightedSums.plus(bias_ih);
+        SimpleMatrix inputWeightedSums = new SimpleMatrix(weights_ih.numCols(), 1);
+        for(int i = 0; i < weights_ih.numCols();){
+            inputWeightedSums.set(i, weights_ih.cols(i, ++i).elementMult(input).elementSum());
+        }
         inputWeightedSums = activation(inputWeightedSums);  
         
         //Multiplay all weights_hidden with previous Result/ next input Matrix
-        SimpleMatrix hiddenWeightedSums = inputWeightedSums;
+        SimpleMatrix hiddenInputs = inputWeightedSums;
+        SimpleMatrix[] hiddenWeightedSums = new SimpleMatrix[weights_hidden.size()];
         for(int i = 0; i < weights_hidden.size(); i++){
-            hiddenWeightedSums = weights_hidden.get(i).mult(hiddenWeightedSums);
-            hiddenWeightedSums.plus(bias_hidden.get(i));
-            hiddenWeightedSums = activation(hiddenWeightedSums);
+            hiddenWeightedSums[i] = new SimpleMatrix(weights_hidden.get(i).numRows(), 1);
+            for(int j = 0; j < weights_hidden.get(i).numCols();){
+                hiddenInputs = weights_hidden.get(i).cols(j, ++j).elementMult(hiddenInputs);
+                hiddenWeightedSums[i].set(j, hiddenInputs.elementSum());
+            }
+            hiddenInputs = activation(hiddenInputs);
         }
 
         //Multiplay weights_oh with last hidden result Matrix
-        SimpleMatrix outputWeightedSums = weights_ho.mult(hiddenWeightedSums);
-        outputWeightedSums.plus(bias_ho);
+        SimpleMatrix outputWeightedSums = new SimpleMatrix(weights_ho.numCols(), 1);
+        for(int i = 0; i < weights_ho.numCols();){
+            outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(input).elementSum());
+        }
         outputWeightedSums = activation(outputWeightedSums);
         
         double[] output_arr = toArray(outputWeightedSums);
@@ -93,24 +96,29 @@ public class FFNetwork {
         }
         
         //Multiplay weights_ih with input Matrix | Get Weighted Sum
-        SimpleMatrix firstHiddenSum = weights_ih.mult(input);
-        firstHiddenSum.plus(bias_ih);
-        firstHiddenSum = activation(firstHiddenSum);
+        SimpleMatrix inputWeightedSums = new SimpleMatrix(weights_ih.numCols(), 1);
+        for(int i = 0; i < weights_ih.numCols();){
+            inputWeightedSums.set(i, weights_ih.cols(i, ++i).elementMult(input).elementSum());
+        }
+        inputWeightedSums = activation(inputWeightedSums);  
         
         //Multiplay all weights_hidden with previous Result/ next input Matrix
-        SimpleMatrix hiddenWeightedSums = firstHiddenSum;
-        ArrayList<SimpleMatrix> hiddenResults = new ArrayList<SimpleMatrix>();
-        hiddenResults.add(hiddenWeightedSums);
+        SimpleMatrix hiddenInputs = inputWeightedSums;
+        SimpleMatrix[] hiddenWeightedSums = new SimpleMatrix[weights_hidden.size()];
         for(int i = 0; i < weights_hidden.size(); i++){
-            hiddenWeightedSums = weights_hidden.get(i).mult(hiddenWeightedSums);
-            hiddenWeightedSums.plus(bias_hidden.get(i));
-            hiddenWeightedSums = activation(hiddenWeightedSums);
-            hiddenResults.add(hiddenWeightedSums);
+            hiddenWeightedSums[i] = new SimpleMatrix(weights_hidden.get(i).numRows(), 1);
+            for(int j = 0; j < weights_hidden.get(i).numCols();){
+                hiddenInputs = weights_hidden.get(i).cols(j, ++j).elementMult(hiddenInputs);
+                hiddenWeightedSums[i].set(j, hiddenInputs.elementSum());
+            }
+            hiddenInputs = activation(hiddenInputs);
         }
 
         //Multiplay weights_oh with last hidden result Matrix
-        SimpleMatrix outputWeightedSums = weights_ho.mult(hiddenWeightedSums);
-        outputWeightedSums.plus(bias_ho);
+        SimpleMatrix outputWeightedSums = new SimpleMatrix(weights_ho.numCols(), 1);
+        for(int i = 0; i < weights_ho.numCols();){
+            outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(input).elementSum());
+        }
         outputWeightedSums = activation(outputWeightedSums);
         
         SimpleMatrix targets = toMatrix(targets_arr);

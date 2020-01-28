@@ -205,7 +205,6 @@ public class MainPageCenter extends javax.swing.JPanel {
             BufferedImage bImage = ImageIO.read(imgFile);
             SimpleMatrix[] rgbMatrix = img.getMatrix(bImage, new Dimension(1280, 720));
             net.predict(img.getMatrix(bImage, new Dimension(1280, 720)), imgDimension);
-            System.out.println("te");
             setLoading(false);
             runLoading = false;
         } catch (IOException ex) {

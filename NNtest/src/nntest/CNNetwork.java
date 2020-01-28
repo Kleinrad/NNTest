@@ -7,7 +7,6 @@ package nntest;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ejml.simple.SimpleMatrix;
@@ -44,7 +43,7 @@ public class CNNetwork {
     }
     
     private void init() throws Exception{
-        Integer[] hiddenNums = {10000, 2000};
+        Integer[] hiddenNums = {1000, 500};
         fCLayer = new FFNetwork(47196, hiddenNums, 4, 2);
         
         filters[0] = new SimpleMatrix[convReps[0]][];
@@ -73,7 +72,7 @@ public class CNNetwork {
         }
         SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
         
-        return null;//fCLayer.feedForward(inceptionVector);
+        return fCLayer.feedForward(inceptionVector);
     }
     
     
