@@ -43,14 +43,13 @@ public class FFNetwork {
         layerSizes.add(2, hiddenLayers);
         
         //Initialize the weight Maticies with the according pattern columns = from-Connection Amount of Neurons and rows = to-Connection Amout of Neurons, with a double between -1 and 1 
-        weights_ih = SimpleMatrix.random_DDRM(hiddenNum[0], inputNum, -1, 1, new Random());
-        weights_ho = SimpleMatrix.random_DDRM(outputNum, hiddenNum[hiddenNum.length - 1], -1, 1, new Random());
+        weights_ih = SimpleMatrix.random_DDRM(inputNum, hiddenNum[0], -1, 1, new Random());
+        weights_ho = SimpleMatrix.random_DDRM(hiddenNum[hiddenNum.length - 1], outputNum, -1, 1, new Random());
         
         //Adds a new Random Matrix to the list 
         for(int i=1; i < hiddenLayers; i++){
             layerSizes.add(i + 2, hiddenNum[i - 1]);
             weights_hidden.add(SimpleMatrix.random_DDRM(hiddenNum[i - 1], hiddenNum[i], -1, 1, new Random()));
-            bias_hidden.add(Math.random() * 2 - 1);
         }
         layerSizes.add(hiddenNum.length + 2, hiddenNum[hiddenNum.length - 1]);
     } 
@@ -69,10 +68,9 @@ public class FFNetwork {
         SimpleMatrix hiddenInputs = inputWeightedSums;
         SimpleMatrix[] hiddenWeightedSums = new SimpleMatrix[weights_hidden.size()];
         for(int i = 0; i < weights_hidden.size(); i++){
-            hiddenWeightedSums[i] = new SimpleMatrix(weights_hidden.get(i).numRows(), 1);
+            hiddenWeightedSums[i] = new SimpleMatrix(weights_hidden.get(i).numCols(), 1);
             for(int j = 0; j < weights_hidden.get(i).numCols();){
-                hiddenInputs = weights_hidden.get(i).cols(j, ++j).elementMult(hiddenInputs);
-                hiddenWeightedSums[i].set(j, hiddenInputs.elementSum());
+                hiddenWeightedSums[i].set(j, weights_hidden.get(i).cols(j, ++j).elementMult(hiddenInputs).elementSum());
             }
             hiddenInputs = activation(hiddenInputs);
         }
@@ -80,11 +78,12 @@ public class FFNetwork {
         //Multiplay weights_oh with last hidden result Matrix
         SimpleMatrix outputWeightedSums = new SimpleMatrix(weights_ho.numCols(), 1);
         for(int i = 0; i < weights_ho.numCols();){
-            outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(input).elementSum());
+            outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(hiddenWeightedSums[hiddenWeightedSums.length - 1]).elementSum());
         }
         outputWeightedSums = activation(outputWeightedSums);
         
         double[] output_arr = toArray(outputWeightedSums);
+        System.out.println(outputWeightedSums);
         return output_arr;
     }
  
@@ -134,9 +133,7 @@ public class FFNetwork {
         gradient = gradient.elementMult(errors_o);
         gradient = multScalar(learning_rate, gradient);
         
-        bias_ho += gradient.get(0);
-        
-        weights_delta = gradient.mult(hiddenResults.get(hiddenResults.size() - 1).transpose());
+        weights_delta = gradient.mult(hiddenWeightedSums[hiddenWeightedSums.length - 1].transpose());
         
         //calculating the error of hidden Layers
         SimpleMatrix errors_h = weights_ho.transpose().mult(errors_o);
@@ -146,13 +143,11 @@ public class FFNetwork {
         
         //Loops throug backwarts starting with the next to last bacause last is picked above
         for(int i=weights_hidden.size(); i > 0; i--){
-            gradient = dsigmoid(hiddenResults.get(i));
+            gradient = dsigmoid(hiddenWeightedSums[i]);
             gradient = gradient.elementMult(errors_h);
             gradient = multScalar(learning_rate, gradient);
             
-            bias_hidden.set(i - 1, gradient.get(0));
-            
-            weights_delta = gradient.mult(hiddenResults.get(i - 1).transpose());
+            weights_delta = gradient.mult(hiddenWeightedSums[i - 1].transpose());
             
             weights_hidden.set(i - 1, weights_hidden.get(i - 1).plus(weights_delta));
             errors_h = weights_hidden.get(i - 1).transpose().mult(errors_h);
@@ -161,11 +156,9 @@ public class FFNetwork {
         //calculate first hidden errors for ih
         //errors_h = weights_hidden.get(0).transpose().mult(errors_h);
         
-        gradient = dsigmoid(hiddenResults.get(0));
+        gradient = dsigmoid(hiddenWeightedSums[0]);
         gradient = gradient.elementMult(errors_h);
         gradient = multScalar(learning_rate, gradient);
-        
-        bias_ih += gradient.get(0);
         
         weights_delta = gradient.mult(input.transpose());
         weights_ih = weights_ih.plus(weights_delta);

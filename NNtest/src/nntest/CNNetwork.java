@@ -24,11 +24,12 @@ public class CNNetwork {
     private double dropOutChance = 0;
     private String arc;
     private Dimension imgDimension = new Dimension();
-    private FFNetwork fCLayer;
+    private FFNetwork fCLayer = null;
     
     private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
     private SimpleMatrix[] weights = new SimpleMatrix[3];
+    private int fcFirstLayerCount = 0;
     
     
     private Integer[] convReps = {2, 3};
@@ -43,9 +44,6 @@ public class CNNetwork {
     }
     
     private void init() throws Exception{
-        Integer[] hiddenNums = {1000, 500};
-        fCLayer = new FFNetwork(47196, hiddenNums, 4, 2);
-        
         filters[0] = new SimpleMatrix[convReps[0]][];
         filters[1] = new SimpleMatrix[convReps[1]][];
         
@@ -66,19 +64,28 @@ public class CNNetwork {
     
     //inputMatrixs is the output of useImage | arc is the used architecture
     public double[] predict(SimpleMatrix[] inputMatrixs, Dimension imgDimension){
-        this.imgDimension = imgDimension;
-        if(!checkInputMatrices(inputMatrixs)){
-            throw new IllegalArgumentException("Matrices not compatible!");
+        try {
+            this.imgDimension = imgDimension;
+            if(!checkInputMatrices(inputMatrixs)){
+                throw new IllegalArgumentException("Matrices not compatible!");
+            }
+            SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
+            
+            if(fCLayer == null){
+                Integer[] hiddenNums = {1000, 500};
+                fCLayer = new FFNetwork(fcFirstLayerCount, hiddenNums, 4, 2);
+            }
+            return fCLayer.feedForward(inceptionVector);
+        } catch (Exception ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
         }
-        SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
-        
-        return fCLayer.feedForward(inceptionVector);
+        return null;
     }
     
     
     private SimpleMatrix inceptionCycle(SimpleMatrix[] resMatrixs){
         SimpleMatrix[][] resFirstCycle = new SimpleMatrix[convReps[0]][3];
-        
+
         for(int i=0; i < convReps[0]; i++){
             SimpleMatrix[] inMatrix = resMatrixs;
             resFirstCycle[i] = covolute(inMatrix, filters[0][i][0], imgDimension);
@@ -112,7 +119,7 @@ public class CNNetwork {
                 
                 outMatrix = covolute(inMatrix, filters[1][i][2], imgDimension);
                 inMatrix = outMatrix;
-                outMatrix = maxPooling(inMatrix, 3, imgDimension);
+                outMatrix = maxPooling(inMatrix, 4, imgDimension);
                 resSecCycle[outPos] = outMatrix;
             }
         }
@@ -120,7 +127,11 @@ public class CNNetwork {
     }
     //Flattens output of convolution Layers
     private SimpleMatrix flattenCLO(SimpleMatrix[][] inputMatrixs){
-        SimpleMatrix vector = new SimpleMatrix(1, 47196);
+        if(fcFirstLayerCount == 0){
+            fcFirstLayerCount = inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].getNumElements();
+            System.out.println(fcFirstLayerCount);
+        }
+        SimpleMatrix vector = new SimpleMatrix(fcFirstLayerCount, 1);
         int idx = 0;
         for(int i=0; i < inputMatrixs.length; i++){
             for(int j=0; j < inputMatrixs[i].length; j++){

@@ -50,9 +50,10 @@ public class useImage {
             cdl.await();
             for(int j=0; j < 4; j++){
                 for(int i=0; i < 3; i++){
-                    rgbMatrix[i].plus(parts[j][i]);
+                    rgbMatrix[i] = rgbMatrix[i].plus(parts[j][i]);
                 }
             }
+            
             return rgbMatrix;
         } catch (InterruptedException ex) {
             Logger.getLogger(useImage.class.getName()).log(Level.SEVERE, null, ex);
