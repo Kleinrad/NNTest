@@ -85,7 +85,6 @@ public class CNNetwork {
     
     private SimpleMatrix inceptionCycle(SimpleMatrix[] resMatrixs){
         SimpleMatrix[][] resFirstCycle = new SimpleMatrix[convReps[0]][3];
-
         for(int i=0; i < convReps[0]; i++){
             SimpleMatrix[] inMatrix = resMatrixs;
             resFirstCycle[i] = covolute(inMatrix, filters[0][i][0], imgDimension);
@@ -99,6 +98,7 @@ public class CNNetwork {
             
             resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
         }
+        System.out.println(resFirstCycle[0][0].get(0));
         SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][];
         for(int i=0; i < convReps[1]; i++){
             for(int j=0; j < resFirstCycle.length; j++){

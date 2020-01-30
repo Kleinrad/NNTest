@@ -20,8 +20,9 @@ import org.ejml.simple.SimpleMatrix;
  */
 public class useImage {
     
-    public static SimpleMatrix[] getMatrix(final BufferedImage image, final Dimension resolution){
+    public static SimpleMatrix[] getMatrix(final BufferedImage image){
         try {
+            Dimension resolution = new Dimension(1280, 720);
             SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
             for(int i = 0; i < 3; i++){
                 SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
@@ -53,13 +54,41 @@ public class useImage {
                     rgbMatrix[i] = rgbMatrix[i].plus(parts[j][i]);
                 }
             }
-            
             return rgbMatrix;
         } catch (InterruptedException ex) {
             Logger.getLogger(useImage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }    
+    
+    public static SimpleMatrix[] getWholeMatrix(BufferedImage img){
+        SimpleMatrix[] rgbPartMatrix = new SimpleMatrix[3];
+        Dimension resolution = new Dimension(1280, 720);
+        for(int i = 0; i < 3; i++){
+            SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
+            rgbPartMatrix[i] = colorMatrix;
+        }
+        
+        int imgWidth = img.getWidth();
+        int imgHeight = img.getHeight();
+        
+        for(int matrixArrayPos=0; matrixArrayPos < 3; matrixArrayPos++){
+            for(int heightPos=0; heightPos < imgHeight; heightPos++){
+                for(int widthPos=0; widthPos < imgWidth; widthPos++){
+                    Color pixColor = new Color(img.getRGB(widthPos, heightPos));
+                    
+                    if(matrixArrayPos == 0){
+                        rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, pixColor.getRed());
+                    }else if(matrixArrayPos == 1){
+                        rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, pixColor.getGreen());
+                    }else if(matrixArrayPos == 2){
+                        rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, pixColor.getBlue());
+                    }
+                }
+            }
+        }
+        return rgbPartMatrix;
+    }
     
     private static SimpleMatrix[] getMatrixPart(BufferedImage image, Dimension resolution, int part){
         SimpleMatrix[] rgbPartMatrix = new SimpleMatrix[3];

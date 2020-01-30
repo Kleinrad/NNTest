@@ -203,8 +203,8 @@ public class MainPageCenter extends javax.swing.JPanel {
         try {
             useImage img = new useImage();
             BufferedImage bImage = ImageIO.read(imgFile);
-            SimpleMatrix[] rgbMatrix = img.getMatrix(bImage, new Dimension(1280, 720));
-            double[] erg = net.predict(img.getMatrix(bImage, new Dimension(1280, 720)), imgDimension);
+            SimpleMatrix[] rgbMatrix = img.getWholeMatrix(bImage);
+            double[] erg = net.predict(rgbMatrix, imgDimension);
             
             for(double x : erg){
                 listModel.addElement(x);
