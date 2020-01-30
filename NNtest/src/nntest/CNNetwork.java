@@ -72,7 +72,7 @@ public class CNNetwork {
             SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
             
             if(fCLayer == null){
-                Integer[] hiddenNums = {1000, 500};
+                Integer[] hiddenNums = {5000, 500};
                 fCLayer = new FFNetwork(fcFirstLayerCount, hiddenNums, 4, 2);
             }
             return fCLayer.feedForward(inceptionVector);
@@ -123,13 +123,13 @@ public class CNNetwork {
                 resSecCycle[outPos] = outMatrix;
             }
         }
+        System.out.println(resSecCycle[0][0].get(0));
         return flattenCLO(resSecCycle);
     }
     //Flattens output of convolution Layers
     private SimpleMatrix flattenCLO(SimpleMatrix[][] inputMatrixs){
         if(fcFirstLayerCount == 0){
             fcFirstLayerCount = inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].getNumElements();
-            System.out.println(fcFirstLayerCount);
         }
         SimpleMatrix vector = new SimpleMatrix(fcFirstLayerCount, 1);
         int idx = 0;

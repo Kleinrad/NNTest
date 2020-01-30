@@ -56,7 +56,6 @@ public class FFNetwork {
     
     //FeedForward Algorithm computes the input to outputs, it feeds the input forward to the outputs
     public double [] feedForward(SimpleMatrix input) {     
-        
         //Multiplay weights_ih with input Matrix | Get Weighted Sum
         SimpleMatrix inputWeightedSums = new SimpleMatrix(weights_ih.numCols(), 1);
         for(int i = 0; i < weights_ih.numCols();){
@@ -83,7 +82,6 @@ public class FFNetwork {
         outputWeightedSums = activation(outputWeightedSums);
         
         double[] output_arr = toArray(outputWeightedSums);
-        System.out.println(outputWeightedSums);
         return output_arr;
     }
  

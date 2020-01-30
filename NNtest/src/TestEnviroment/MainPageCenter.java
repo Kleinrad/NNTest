@@ -21,8 +21,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import javax.swing.JList;
 import nntest.useImage;
 import org.ejml.simple.SimpleMatrix;
 
@@ -74,6 +73,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         imageField.setBackground(EnvUtils.primColor);
         imageContainer.setBorder(EnvUtils.buttonBorder);
         
+        jList1.setForeground(EnvUtils.primForground);
         jList1.setBackground(EnvUtils.listColor);
         jList1.setModel(listModel);
     }
@@ -204,7 +204,11 @@ public class MainPageCenter extends javax.swing.JPanel {
             useImage img = new useImage();
             BufferedImage bImage = ImageIO.read(imgFile);
             SimpleMatrix[] rgbMatrix = img.getMatrix(bImage, new Dimension(1280, 720));
-            net.predict(img.getMatrix(bImage, new Dimension(1280, 720)), imgDimension);
+            double[] erg = net.predict(img.getMatrix(bImage, new Dimension(1280, 720)), imgDimension);
+            
+            for(double x : erg){
+                listModel.addElement(x);
+            }
             setLoading(false);
             runLoading = false;
         } catch (IOException ex) {
