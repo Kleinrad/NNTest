@@ -9,11 +9,14 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nntest.CNNetwork;
@@ -26,6 +29,8 @@ import nntest.CNNetwork;
 public class NNTestEnviroment extends javax.swing.JFrame {
     private MainPageCenter mainPageCenter1;
     private JFrame loadingFrame = new JFrame();
+    private Thread trainInfoDialog = new Thread(() -> checkTrainInfoDialog());
+    private nntest.CNNetwork net;
     
     public void setLoadingScreen(){
         loadingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -49,18 +54,55 @@ public class NNTestEnviroment extends javax.swing.JFrame {
         newGui.setNet(net);
         newGui.setVisible(true);
         newGui.removeLoadingScreen();
+        
     }
     
     /**
      * Creates new form NNTestEnviroment
      */
     public void setNet(CNNetwork net){
+        this.net = net;
         mainPageCenter1 = new MainPageCenter(net);
+        trainInfoDialog.start();
     }
     
     public NNTestEnviroment(){
         initComponents();
     }
+    
+    private void checkTrainInfoDialog(){
+        try {
+            while(true){
+                System.out.println(mainPageCenter1.callTrainInfo);
+                if(mainPageCenter1.callTrainInfo){
+                    GetTrainInfo getTrainInfo = new GetTrainInfo(this, true);
+                    getTrainInfo.setVisible(true);
+                    trainCycle(getTrainInfo.iterations, getTrainInfo.saveInterval);
+                }
+                Thread.sleep(50);
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void trainCycle(int iterations, int saveInterval){
+    }
+    
+    public NNTestEnviroment(MainPageCenter mainPageCenter1, CNNetwork net, CMenuBar cMenuBar1, JMenuItem decreaseScale, JMenu editMenu, JMenu fileMenu, JMenuItem increaseScale, JMenuItem jMenuItem1, JMenuItem jMenuItem2, JMenu previewMenu, JMenu viewMenu) throws HeadlessException {
+        this.mainPageCenter1 = mainPageCenter1;
+        this.net = net;
+        this.cMenuBar1 = cMenuBar1;
+        this.decreaseScale = decreaseScale;
+        this.editMenu = editMenu;
+        this.fileMenu = fileMenu;
+        this.increaseScale = increaseScale;
+        this.jMenuItem1 = jMenuItem1;
+        this.jMenuItem2 = jMenuItem2;
+        this.previewMenu = previewMenu;
+        this.viewMenu = viewMenu;
+    }
+    
     
     public NNTestEnviroment(CNNetwork net) {
         mainPageCenter1 = new MainPageCenter(net);

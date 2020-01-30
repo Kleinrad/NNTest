@@ -103,10 +103,9 @@ public class FFNetwork {
         SimpleMatrix hiddenInputs = inputWeightedSums;
         SimpleMatrix[] hiddenWeightedSums = new SimpleMatrix[weights_hidden.size()];
         for(int i = 0; i < weights_hidden.size(); i++){
-            hiddenWeightedSums[i] = new SimpleMatrix(weights_hidden.get(i).numRows(), 1);
+            hiddenWeightedSums[i] = new SimpleMatrix(weights_hidden.get(i).numCols(), 1);
             for(int j = 0; j < weights_hidden.get(i).numCols();){
-                hiddenInputs = weights_hidden.get(i).cols(j, ++j).elementMult(hiddenInputs);
-                hiddenWeightedSums[i].set(j, hiddenInputs.elementSum());
+                hiddenWeightedSums[i].set(j, weights_hidden.get(i).cols(j, ++j).elementMult(hiddenInputs).elementSum());
             }
             hiddenInputs = activation(hiddenInputs);
         }
@@ -114,8 +113,9 @@ public class FFNetwork {
         //Multiplay weights_oh with last hidden result Matrix
         SimpleMatrix outputWeightedSums = new SimpleMatrix(weights_ho.numCols(), 1);
         for(int i = 0; i < weights_ho.numCols();){
-            outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(input).elementSum());
+            outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(hiddenWeightedSums[hiddenWeightedSums.length - 1]).elementSum());
         }
+        
         outputWeightedSums = activation(outputWeightedSums);
         
         SimpleMatrix targets = toMatrix(targets_arr);

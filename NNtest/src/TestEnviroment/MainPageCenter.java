@@ -49,6 +49,9 @@ public class MainPageCenter extends javax.swing.JPanel {
     private File imgFile;
     private Dimension imgDimension = new Dimension();
     private boolean runLoading = false;
+    
+    public boolean callTrainInfo = false;
+    
     /**
      * Creates new form MainPageCenter
      */
@@ -238,9 +241,8 @@ public class MainPageCenter extends javax.swing.JPanel {
     private void trainButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_trainButtonMousePressed
         trainButton.setIcon(trainToggleIcon);
         trainButton.setBorder(EnvUtils.buttonBorder);
+        callTrainInfo = true;
     }//GEN-LAST:event_trainButtonMousePressed
-
-    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler2;
