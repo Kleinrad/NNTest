@@ -22,9 +22,9 @@ public class RunDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         jLabel1.setForeground(EnvUtils.primForground);
-        paint_(jPanel1, EnvUtils.primColor);
-        paint_(jPanel2, EnvUtils.primColor);
-        paint_(jPanel3, EnvUtils.primColor);
+        EnvUtils.paint_(jPanel1, EnvUtils.primColor);
+        EnvUtils.paint_(jPanel2, EnvUtils.primColor);
+        EnvUtils.paint_(jPanel3, EnvUtils.primColor);
     }
 
     /**
@@ -108,13 +108,6 @@ public class RunDialog extends javax.swing.JDialog {
         if(progress == 100){
             runConfirmButton.setVisible(true);
         }
-    }
-    
-    private static void paint_(JComponent comp, Color color){
-        for(Component c : comp.getComponents()){
-            c.setBackground(color);
-        }
-        comp.setBackground(color);
     }
     
     private void runConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runConfirmButtonActionPerformed

@@ -25,6 +25,20 @@ public class GetTrainInfo extends javax.swing.JDialog {
         super(parent, modal);
         setUndecorated(true);
         initComponents();
+        EnvUtils.paint_(jPanel1, EnvUtils.dialogColor);
+        EnvUtils.paint_(jPanel2, EnvUtils.dialogColor);
+        EnvUtils.paint_(jPanel3, EnvUtils.dialogColor);
+        EnvUtils.paint_(jPanel4, EnvUtils.dialogColor);
+        EnvUtils.paint_(jPanel5, EnvUtils.dialogColor);
+        EnvUtils.paint_(jPanel6, EnvUtils.dialogColor);
+        
+        jTextField1.setBackground(Color.WHITE);
+        jTextField2.setBackground(Color.WHITE);
+        jPanel6.setBorder(BorderFactory.createLineBorder(new Color(85, 85, 85), 2));
+        
+        jLabel1.setForeground(EnvUtils.primForground);
+        jLabel2.setForeground(EnvUtils.primForground);
+        jLabel3.setForeground(EnvUtils.primForground);
     }
 
     /**
@@ -36,12 +50,15 @@ public class GetTrainInfo extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel6 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jLabel3 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
@@ -50,34 +67,40 @@ public class GetTrainInfo extends javax.swing.JDialog {
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(300, 180));
-        getContentPane().setLayout(new java.awt.GridLayout(4, 0));
+        setPreferredSize(new java.awt.Dimension(450, 180));
 
-        jPanel3.setLayout(new java.awt.GridLayout());
+        jPanel6.setLayout(new java.awt.GridLayout(3, 0));
+
+        jPanel3.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Train Stats");
         jPanel3.add(jLabel2);
 
-        getContentPane().add(jPanel3);
+        jPanel6.add(jPanel3);
 
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel5.setLayout(new java.awt.GridBagLayout());
+
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Iterations:");
+        jLabel1.setText("Iterations:  ");
         jPanel1.add(jLabel1);
         jPanel1.add(jTextField1);
 
-        getContentPane().add(jPanel1);
+        jPanel5.add(jPanel1, new java.awt.GridBagConstraints());
 
         jPanel2.setLayout(new java.awt.GridLayout());
+        jPanel2.add(filler3);
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Save Intervall:");
+        jLabel3.setText("Save Intervall:  ");
         jPanel2.add(jLabel3);
         jPanel2.add(jTextField2);
 
-        getContentPane().add(jPanel2);
+        jPanel5.add(jPanel2, new java.awt.GridBagConstraints());
+
+        jPanel6.add(jPanel5);
 
         jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
         jPanel4.add(filler1);
@@ -91,7 +114,9 @@ public class GetTrainInfo extends javax.swing.JDialog {
         jPanel4.add(jButton1);
         jPanel4.add(filler2);
 
-        getContentPane().add(jPanel4);
+        jPanel6.add(jPanel4);
+
+        getContentPane().add(jPanel6, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -103,7 +128,7 @@ public class GetTrainInfo extends javax.swing.JDialog {
         if(jTextField2.getText().equals("")){
             jTextField2.setBorder(BorderFactory.createLineBorder(Color.red));
         }
-        if(!(jTextField1.getText().equals("") && jTextField2.getText().equals(""))){
+        if(!(jTextField1.getText().equals("") || jTextField2.getText().equals(""))){
             iterations = Integer.parseInt(jTextField1.getText());
             saveInterval = Integer.parseInt(jTextField2.getText());
             setVisible(false);
@@ -155,6 +180,7 @@ public class GetTrainInfo extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -163,6 +189,8 @@ public class GetTrainInfo extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables

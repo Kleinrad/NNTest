@@ -10,7 +10,10 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -53,6 +56,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
         CNNetwork net = new CNNetwork("Onata");
         newGui.setNet(net);
         newGui.setVisible(true);
+        newGui.setLocation(WIDTH, WIDTH);
         newGui.removeLoadingScreen();
         
     }
@@ -68,14 +72,18 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     
     public NNTestEnviroment(){
         initComponents();
+        Dimension screenPos = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation(screenPos.width / 2 - getSize().width / 2, screenPos.height / 2 - getSize().height / 2);
     }
     
     private void checkTrainInfoDialog(){
         try {
             while(true){
-                System.out.println(mainPageCenter1.callTrainInfo);
                 if(mainPageCenter1.callTrainInfo){
+                    mainPageCenter1.callTrainInfo = false;
                     GetTrainInfo getTrainInfo = new GetTrainInfo(this, true);
+                    Rectangle dialogPos = getBounds();
+                    getTrainInfo.setLocation(dialogPos.x + dialogPos.width / 2 - 225, dialogPos.y + dialogPos.height / 2 - 90);
                     getTrainInfo.setVisible(true);
                     trainCycle(getTrainInfo.iterations, getTrainInfo.saveInterval);
                 }

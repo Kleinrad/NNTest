@@ -19,9 +19,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
 import nntest.useImage;
 import org.ejml.simple.SimpleMatrix;
 
@@ -62,10 +60,10 @@ public class MainPageCenter extends javax.swing.JPanel {
     }
     
     private void startUp(){
-        paint_(south2, EnvUtils.primColor);
-        paint_(southPanel, EnvUtils.primColor);
-        paint_(imageField, EnvUtils.primColor);
-        paint_(imageContainer, EnvUtils.primColor);
+        EnvUtils.paint_(south2, EnvUtils.primColor);
+        EnvUtils.paint_(southPanel, EnvUtils.primColor);
+        EnvUtils.paint_(imageField, EnvUtils.primColor);
+        EnvUtils.paint_(imageContainer, EnvUtils.primColor);
         
         runButton.setIcon(runIdleIcon);
         uploadButton.setIcon(uploadIdleIcon);
@@ -95,12 +93,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         imgDimension.width = imgWidth;
     }
     
-    private static void paint_(JComponent comp, Color color){
-        for(Component c : comp.getComponents()){
-            c.setBackground(color);
-        }
-        comp.setBackground(color);
-    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
