@@ -17,12 +17,14 @@ import java.awt.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nntest.CNNetwork;
+import nntest.NetworkUntils;
 
 
 /**
@@ -34,6 +36,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     private JFrame loadingFrame = new JFrame();
     private Thread trainInfoDialog = new Thread(() -> checkTrainInfoDialog());
     private nntest.CNNetwork net;
+    private String lastImgPath = "C:\\";
     
     public void setLoadingScreen(){
         loadingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -84,16 +87,18 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                     Rectangle dialogPos = getBounds();
                     getTrainInfo.setLocation(dialogPos.x + dialogPos.width / 2 - 225, dialogPos.y + dialogPos.height / 2 - 90);
                     getTrainInfo.setVisible(true);
-                    trainCycle(getTrainInfo.iterations, getTrainInfo.saveInterval);
+                    JFileChooser inputImgs = new JFileChooser(lastImgPath);
+                    inputImgs.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    inputImgs.showOpenDialog(this);
+                    lastImgPath = inputImgs.getSelectedFile().getPath();
+                    
+                    NetworkUntils.trainCycle(getTrainInfo.iterations, getTrainInfo.saveInterval, net, inputImgs.getSelectedFiles(), inputImgs.getSelectedFile().getPath());
                 }
-                Thread.sleep(50);
+                Thread.sleep(100);
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    private void trainCycle(int iterations, int saveInterval){
     }
     
     public NNTestEnviroment(MainPageCenter mainPageCenter1, CNNetwork net, CMenuBar cMenuBar1, JMenuItem decreaseScale, JMenu editMenu, JMenu fileMenu, JMenuItem increaseScale, JMenuItem jMenuItem1, JMenuItem jMenuItem2, JMenu previewMenu, JMenu viewMenu) throws HeadlessException {

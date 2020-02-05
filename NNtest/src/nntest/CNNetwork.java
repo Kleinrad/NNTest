@@ -143,6 +143,15 @@ public class CNNetwork {
         return vector;
     }
     
+    public void train(SimpleMatrix[] input, Integer[] targets_arr) throws Exception{
+        SimpleMatrix inceptionOutput = inceptionCycle(input);
+        fCLayer.train(inceptionOutput, targets_arr);
+    }
+    
+    public void saveInstance(){
+        
+    }
+    
 //    private double predictXception(SimpleMatrix[] resMatrixs){
 //        return 0.0;
 //    }

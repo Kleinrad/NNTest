@@ -85,7 +85,7 @@ public class FFNetwork {
         return output_arr;
     }
  
-    public void train (SimpleMatrix input, double[] targets_arr) throws Exception{
+    public void train (SimpleMatrix input, Integer[] targets_arr) throws Exception{
         if(input.numCols() != weights_ih.numCols()){
             throw new Exception("Input is not valid. It must match up with input nodes!");
         }else if(targets_arr.length != weights_ho.numRows()){
@@ -193,7 +193,7 @@ public class FFNetwork {
         return dsigmMatrix;
     }
     //To Matrix Function that converts array to matrix/Vektor
-    private static SimpleMatrix toMatrix(double [] arr){
+    private static SimpleMatrix toMatrix(Integer [] arr){
         SimpleMatrix matrix = new SimpleMatrix(arr.length, 1);
         for(int i=0; i < arr.length; i++){
             matrix.set(i, 0, arr[i]);
