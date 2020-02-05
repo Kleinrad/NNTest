@@ -90,7 +90,7 @@ public class GetTrainInfo extends javax.swing.JDialog {
 
         jPanel5.add(jPanel1, new java.awt.GridBagConstraints());
 
-        jPanel2.setLayout(new java.awt.GridLayout());
+        jPanel2.setLayout(new java.awt.GridLayout(1, 0));
         jPanel2.add(filler3);
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);

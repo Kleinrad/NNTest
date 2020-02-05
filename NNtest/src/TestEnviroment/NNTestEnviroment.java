@@ -56,7 +56,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
         CNNetwork net = new CNNetwork("Onata");
         newGui.setNet(net);
         newGui.setVisible(true);
-        newGui.setLocation(WIDTH, WIDTH);
         newGui.removeLoadingScreen();
         
     }

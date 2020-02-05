@@ -3,13 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/nntest/CNNetwork.java</file>
             <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/TestEnviroment/NNTestEnviroment.java</file>
-            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/TestEnviroment/MainPageCenter.java</file>
-            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/TestEnviroment/RunDialog.java</file>
-            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/TestEnviroment/LoadingPanel.java</file>
-            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/nntest/useImage.java</file>
-            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/nntest/FFNetwork.java</file>
+            <file>file:/D:/Random/Datein/Git/NNTest/NNtest/src/TestEnviroment/GetTrainInfo.java</file>
         </group>
     </open-files>
 </project-private>
