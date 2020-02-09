@@ -5,7 +5,6 @@
  */
 package TestEnviroment;
 
-import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JComponent;
 
@@ -21,6 +20,7 @@ public class RunDialog extends javax.swing.JDialog {
     public RunDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        jLabel2.setForeground(EnvUtils.primForground);
         jLabel1.setForeground(EnvUtils.primForground);
         EnvUtils.paint_(jPanel1, EnvUtils.primColor);
         EnvUtils.paint_(jPanel2, EnvUtils.primColor);
@@ -108,6 +108,10 @@ public class RunDialog extends javax.swing.JDialog {
         if(progress == 100){
             runConfirmButton.setVisible(true);
         }
+    }
+    
+    public void setTime(String time){
+        jLabel2.setText(time);
     }
     
     private void runConfirmButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runConfirmButtonActionPerformed

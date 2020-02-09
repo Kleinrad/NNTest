@@ -19,9 +19,22 @@ import org.ejml.simple.SimpleMatrix;
  * @author fabia
  */
 public class NetworkUntils {
+    private static int trainProgress=0;
+    private static long avgTimePerIteration = 0;
+    
+    public static int getProgress(){
+        return trainProgress;
+    }
+
+    public static long getAvgTimePerIteration() {
+        return avgTimePerIteration;
+    }
     
     public static boolean trainCycle(int iterations, int saveInterval, CNNetwork net, File[] inputImgs, String path){
+        System.out.println("1");
         TagImages imgTag = new TagImages(path);
+        System.out.println("2");
+        long startTime = System.nanoTime();
         for(int i=0; i < iterations; i++){
             try {
                 int img = (int)(Math.random() * inputImgs.length);
@@ -32,7 +45,8 @@ public class NetworkUntils {
                 SimpleMatrix[] imgMatrix = useImage.getMatrix(bufferedImage);
                 
                 net.train(imgMatrix, imgTag.resultMap.get(getImageNameInfo(inputImgs[img].getName())));
-                
+                trainProgress++;
+                avgTimePerIteration = (System.nanoTime() - startTime) / i;
             } catch (IOException ex) {
                 Logger.getLogger(NetworkUntils.class.getName()).log(Level.SEVERE, null, ex);
             } catch (Exception ex) {
@@ -40,6 +54,8 @@ public class NetworkUntils {
             }
             
         }
+        trainProgress = 0;
+        avgTimePerIteration = 0;
         return true;
     }
     

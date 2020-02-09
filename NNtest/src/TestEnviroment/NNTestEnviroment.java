@@ -37,6 +37,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     private Thread trainInfoDialog = new Thread(() -> checkTrainInfoDialog());
     private nntest.CNNetwork net;
     private String lastImgPath = "C:\\";
+    private RunDialog trainProgress = new RunDialog(this, true);
     
     public void setLoadingScreen(){
         loadingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -91,13 +92,40 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                     inputImgs.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     inputImgs.showOpenDialog(this);
                     lastImgPath = inputImgs.getSelectedFile().getPath();
-                    
-                    NetworkUntils.trainCycle(getTrainInfo.iterations, getTrainInfo.saveInterval, net, inputImgs.getSelectedFiles(), inputImgs.getSelectedFile().getPath());
+                    System.out.println("-1");
+                    Thread progressDialog = new Thread(() -> updateProgress(getTrainInfo.iterations));
+                    Thread trainThread = new Thread(() -> NetworkUntils.trainCycle(getTrainInfo.iterations,
+                                                                                   getTrainInfo.saveInterval, 
+                                                                                   net, inputImgs.getSelectedFiles(), 
+                                                                                   inputImgs.getSelectedFile().getPath()));
+                    System.out.println("0");
+                    trainThread.start();
+                    progressDialog.start();
+                    trainProgress.setVisible(true);
                 }
                 Thread.sleep(100);
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void updateProgress(int total){
+        while(true){
+            try {
+                int prog = nntest.NetworkUntils.getProgress();
+                long time = nntest.NetworkUntils.getAvgTimePerIteration();
+                time = (long)time / 1000; 
+                
+                String hours = "Hours: " + ((int)time / 3600);
+                String mins = "Minutes: " + ((int)time / 60);
+                
+                trainProgress.setTime(hours + "  " + mins);
+                trainProgress.setProgress((prog / total) * 100);
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
