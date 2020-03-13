@@ -109,7 +109,7 @@ public class FFNetwork {
             }
             hiddenInputs = activation(hiddenInputs);
         }
-
+        NetworkUntils.raiseIterationProgress();
         //Multiplay weights_oh with last hidden result Matrix
         SimpleMatrix outputWeightedSums = new SimpleMatrix(weights_ho.numCols(), 1);
         for(int i = 0; i < weights_ho.numCols();){
@@ -123,7 +123,7 @@ public class FFNetwork {
         
         //calculating the error of Output 
         SimpleMatrix errors_o =  targets.minus(outputWeightedSums);
-        
+        NetworkUntils.raiseIterationProgress();
         //calculating delta weights for ho
         SimpleMatrix weights_delta;
         SimpleMatrix gradient = dsigmoid(outputWeightedSums);
@@ -138,7 +138,7 @@ public class FFNetwork {
         
         //adding delta weight to weight
         weights_ho = weights_ho.plus(weights_delta);
-        
+        NetworkUntils.raiseIterationProgress();
         //Loops throug backwarts starting with the next to last bacause last is picked above
         for(int i=weights_hidden.size(); i > 0; i--){
             gradient = dsigmoid(hiddenWeightedSums[i]);
@@ -160,6 +160,7 @@ public class FFNetwork {
         
         weights_delta = gradient.mult(input.transpose());
         weights_ih = weights_ih.plus(weights_delta);
+        NetworkUntils.raiseIterationProgress();
     }
     
     // Activation Function with sigmoid func

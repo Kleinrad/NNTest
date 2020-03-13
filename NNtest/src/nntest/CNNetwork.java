@@ -97,6 +97,7 @@ public class CNNetwork {
             inMatrix = resFirstCycle[i];
             
             resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
+            NetworkUntils.raiseIterationProgress();
         }
         System.out.println(resFirstCycle[0][0].get(0));
         SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][];
@@ -122,6 +123,7 @@ public class CNNetwork {
                 outMatrix = maxPooling(inMatrix, 4, imgDimension);
                 resSecCycle[outPos] = outMatrix;
             }
+            NetworkUntils.raiseIterationProgress();
         }
         System.out.println(resSecCycle[0][0].get(0));
         return flattenCLO(resSecCycle);
@@ -145,6 +147,9 @@ public class CNNetwork {
     
     public void train(SimpleMatrix[] input, Integer[] targets_arr) throws Exception{
         SimpleMatrix inceptionOutput = inceptionCycle(input);
+        if(NetworkUntils.getIterationProgress() < 6){
+            NetworkUntils.setIterationProgress(6);
+        }
         fCLayer.train(inceptionOutput, targets_arr);
     }
     

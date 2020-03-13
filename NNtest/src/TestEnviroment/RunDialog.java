@@ -53,7 +53,7 @@ public class RunDialog extends javax.swing.JDialog {
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(300, 150));
+        setPreferredSize(new java.awt.Dimension(400, 150));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -62,7 +62,7 @@ public class RunDialog extends javax.swing.JDialog {
         });
         getContentPane().setLayout(new java.awt.GridLayout(3, 3));
 
-        jPanel2.setLayout(new java.awt.GridLayout(2, 0));
+        jPanel2.setLayout(new java.awt.GridLayout(2, 0, 20, 0));
         jPanel2.add(filler8);
         jPanel2.add(filler5);
 
@@ -79,6 +79,8 @@ public class RunDialog extends javax.swing.JDialog {
 
         jPanel3.setLayout(new javax.swing.BoxLayout(jPanel3, javax.swing.BoxLayout.LINE_AXIS));
         jPanel3.add(filler1);
+
+        jProgressBar1.setMaximum(1000);
         jPanel3.add(jProgressBar1);
         jPanel3.add(filler3);
 
@@ -104,6 +106,7 @@ public class RunDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     public void setProgress(int progress){
+        jLabel2.setFont(jLabel1.getFont());
         jProgressBar1.setValue(progress);
         if(progress == 100){
             runConfirmButton.setVisible(true);

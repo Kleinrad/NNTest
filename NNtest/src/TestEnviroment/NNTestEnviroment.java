@@ -121,7 +121,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                 String mins = "Minutes: " + ((int)time / 60);
                 
                 trainProgress.setTime(hours + "  " + mins);
-                trainProgress.setProgress((prog / total) * 100);
+                trainProgress.setProgress((prog / total) * 1000);
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
                 Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
