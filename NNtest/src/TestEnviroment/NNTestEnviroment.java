@@ -5,13 +5,26 @@
  */
 package TestEnviroment;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import nntest.CNNetwork;
+import nntest.NetworkUntils;
 
 
 /**
@@ -19,11 +32,120 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author fabia
  */
 public class NNTestEnviroment extends javax.swing.JFrame {
-   
+    private MainPageCenter mainPageCenter1;
+    private JFrame loadingFrame = new JFrame();
+    private Thread trainInfoDialog = new Thread(() -> checkTrainInfoDialog());
+    private nntest.CNNetwork net;
+    private String lastImgPath = "C:\\";
+    private RunDialog trainProgress = new RunDialog(this, true);
+    
+    public void setLoadingScreen(){
+        loadingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        loadingFrame.setUndecorated(true);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        loadingFrame.setLocation(screenSize.width / 2 - 249, screenSize.height / 2 - 150);
+        loadingFrame.add(new LoadingPanel());
+        loadingFrame.pack();
+        loadingFrame.setVisible(true);
+    }
+    
+    public void removeLoadingScreen(){
+        loadingFrame.setVisible(false);
+    }
+    
+    public static void main(String[] args) {
+        NNTestEnviroment newGui = new NNTestEnviroment();
+        newGui.setLoadingScreen();
+        
+        CNNetwork net = new CNNetwork("Onata");
+        newGui.setNet(net);
+        newGui.setVisible(true);
+        newGui.removeLoadingScreen();
+        
+    }
+    
     /**
      * Creates new form NNTestEnviroment
      */
-    public NNTestEnviroment() {
+    public void setNet(CNNetwork net){
+        this.net = net;
+        mainPageCenter1 = new MainPageCenter(net);
+        trainInfoDialog.start();
+    }
+    
+    public NNTestEnviroment(){
+        initComponents();
+        Dimension screenPos = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation(screenPos.width / 2 - getSize().width / 2, screenPos.height / 2 - getSize().height / 2);
+    }
+    
+    private void checkTrainInfoDialog(){
+        try {
+            while(true){
+                if(mainPageCenter1.callTrainInfo){
+                    mainPageCenter1.callTrainInfo = false;
+                    GetTrainInfo getTrainInfo = new GetTrainInfo(this, true);
+                    Rectangle dialogPos = getBounds();
+                    getTrainInfo.setLocation(dialogPos.x + dialogPos.width / 2 - 225, dialogPos.y + dialogPos.height / 2 - 90);
+                    getTrainInfo.setVisible(true);
+                    JFileChooser inputImgs = new JFileChooser(lastImgPath);
+                    inputImgs.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    inputImgs.showOpenDialog(this);
+                    lastImgPath = inputImgs.getSelectedFile().getPath();
+                    System.out.println("-1");
+                    Thread progressDialog = new Thread(() -> updateProgress(getTrainInfo.iterations));
+                    Thread trainThread = new Thread(() -> NetworkUntils.trainCycle(getTrainInfo.iterations,
+                                                                                   getTrainInfo.saveInterval, 
+                                                                                   net, inputImgs.getSelectedFiles(), 
+                                                                                   inputImgs.getSelectedFile().getPath()));
+                    System.out.println("0");
+                    trainThread.start();
+                    progressDialog.start();
+                    trainProgress.setVisible(true);
+                }
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void updateProgress(int total){
+        while(true){
+            try {
+                int prog = nntest.NetworkUntils.getProgress();
+                long time = nntest.NetworkUntils.getAvgTimePerIteration();
+                time = (long)time / 1000; 
+                
+                String hours = "Hours: " + ((int)time / 3600);
+                String mins = "Minutes: " + ((int)time / 60);
+                
+                trainProgress.setTime(hours + "  " + mins);
+                trainProgress.setProgress((prog / total) * 1000);
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public NNTestEnviroment(MainPageCenter mainPageCenter1, CNNetwork net, CMenuBar cMenuBar1, JMenuItem decreaseScale, JMenu editMenu, JMenu fileMenu, JMenuItem increaseScale, JMenuItem jMenuItem1, JMenuItem jMenuItem2, JMenu previewMenu, JMenu viewMenu) throws HeadlessException {
+        this.mainPageCenter1 = mainPageCenter1;
+        this.net = net;
+        this.cMenuBar1 = cMenuBar1;
+        this.decreaseScale = decreaseScale;
+        this.editMenu = editMenu;
+        this.fileMenu = fileMenu;
+        this.increaseScale = increaseScale;
+        this.jMenuItem1 = jMenuItem1;
+        this.jMenuItem2 = jMenuItem2;
+        this.previewMenu = previewMenu;
+        this.viewMenu = viewMenu;
+    }
+    
+    
+    public NNTestEnviroment(CNNetwork net) {
+        mainPageCenter1 = new MainPageCenter(net);
         initComponents();
     }
 
@@ -36,7 +158,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPageCenter1 = new TestEnviroment.MainPageCenter();
         cMenuBar1 = new TestEnviroment.CMenuBar();
         fileMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -55,7 +176,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                 formWindowOpened(evt);
             }
         });
-        getContentPane().add(mainPageCenter1, java.awt.BorderLayout.CENTER);
 
         fileMenu.setMnemonic('F');
         fileMenu.setText("File");
@@ -116,6 +236,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         init();
         setLookAndFeel();
+        add(mainPageCenter1, BorderLayout.CENTER);
     }//GEN-LAST:event_formWindowOpened
 
     private void decreaseScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decreaseScaleActionPerformed
@@ -142,41 +263,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
         
         mainPageCenter1.setBackground(EnvUtils.primColor);
     }
-        
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NNTestEnviroment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NNTestEnviroment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NNTestEnviroment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(NNTestEnviroment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new NNTestEnviroment().setVisible(true);
-            }
-        });
-    }
 
     private void setLoading(boolean isLoading){
         for(Component c : this.getComponents()){
@@ -193,7 +279,6 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     private javax.swing.JMenuItem increaseScale;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private TestEnviroment.MainPageCenter mainPageCenter1;
     private javax.swing.JMenu previewMenu;
     private javax.swing.JMenu viewMenu;
     // End of variables declaration//GEN-END:variables

@@ -8,12 +8,10 @@ package nntest;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import nntest.tagImages.TagImages;
 import org.ejml.simple.SimpleMatrix;
 
 /**
@@ -21,61 +19,97 @@ import org.ejml.simple.SimpleMatrix;
  * @author fabia
  */
 public class useImage {
-    SimpleMatrix[] rgbMatrix;
     
-    Dimension imageDimension = new Dimension(); 
-    private static boolean pause = false;
-    private static boolean cancleTraining = false;
-    ImageDivider div;
-    double[] imageResult = new double[4];
-    NameInfo imgInfo;
-
-    public useImage(BufferedImage image, String name) throws Exception {
-        for(int i = 0; i < 3; i++){
-            SimpleMatrix colorMatrix = new SimpleMatrix(image.getHeight(), image.getWidth());
-            rgbMatrix[0] = colorMatrix;
-        }
-        String[] nameInfoRaw = name.split("_");
-        imgInfo= new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-        
-        //setMatrix(image);
-        getMatrix(image);
-    }
-    
-    public useImage(BufferedImage image) throws Exception {
-        for(int i = 0; i < 3; i++){
-            SimpleMatrix colorMatrix = new SimpleMatrix(image.getHeight(), image.getWidth());
-            rgbMatrix[0] = colorMatrix;
-        }
-        //setMatrix(image);
-        getMatrix(image);
-    }
-    
-    private int gcd(int bigValue,int smallValue){
-        while(bigValue != smallValue){
-            if(smallValue > bigValue){
-                int tmp = smallValue;
-                smallValue = bigValue;
-                bigValue = tmp;
+    public static SimpleMatrix[] getMatrix(final BufferedImage image){
+        try {
+            Dimension resolution = new Dimension(1280, 720);
+            SimpleMatrix[] rgbMatrix = new SimpleMatrix[3];
+            for(int i = 0; i < 3; i++){
+                SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
+                rgbMatrix[i] = colorMatrix;
             }
-            bigValue = bigValue - smallValue;
+            
+            final CountDownLatch cdl = new CountDownLatch(4);
+            final SimpleMatrix[][] parts = new SimpleMatrix[4][];
+            new Thread(() -> {
+                parts[0] = getMatrixPart(image, resolution, 0);
+                cdl.countDown();
+            }).start();
+            new Thread(() -> {
+                parts[1] = getMatrixPart(image, resolution, 1);
+                cdl.countDown();
+            }).start();
+            new Thread(() -> {
+                parts[2] = getMatrixPart(image, resolution, 2);
+                cdl.countDown();
+            }).start();
+            new Thread(() -> {
+                parts[3] = getMatrixPart(image, resolution, 3);
+                cdl.countDown();
+            }).start();
+            
+            cdl.await();
+            for(int j=0; j < 4; j++){
+                for(int i=0; i < 3; i++){
+                    rgbMatrix[i] = rgbMatrix[i].plus(parts[j][i]);
+                }
+            }
+            return rgbMatrix;
+        } catch (InterruptedException ex) {
+            Logger.getLogger(useImage.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return bigValue;
-    }
+        return null;
+    }    
     
-    private void getMatrix(BufferedImage image){
-        int imgWidth = image.getWidth();
-        int imgHeight = image.getHeight();
+    public static SimpleMatrix[] getWholeMatrix(BufferedImage img){
+        SimpleMatrix[] rgbPartMatrix = new SimpleMatrix[3];
+        Dimension resolution = new Dimension(1280, 720);
+        for(int i = 0; i < 3; i++){
+            SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
+            rgbPartMatrix[i] = colorMatrix;
+        }
+        
+        int imgWidth = img.getWidth();
+        int imgHeight = img.getHeight();
         
         for(int matrixArrayPos=0; matrixArrayPos < 3; matrixArrayPos++){
             for(int heightPos=0; heightPos < imgHeight; heightPos++){
                 for(int widthPos=0; widthPos < imgWidth; widthPos++){
-                    Color pixColor = new Color(image.getRGB(widthPos, heightPos));
-                    rgbMatrix[matrixArrayPos].set(heightPos, widthPos, (matrixArrayPos == 0 ? pixColor.getRed() : (matrixArrayPos == 1 ? pixColor.getGreen() : pixColor.getBlue())));
+                    Color pixColor = new Color(img.getRGB(widthPos, heightPos));
+                    
+                    if(matrixArrayPos == 0){
+                        rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, pixColor.getRed());
+                    }else if(matrixArrayPos == 1){
+                        rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, pixColor.getGreen());
+                    }else if(matrixArrayPos == 2){
+                        rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, pixColor.getBlue());
+                    }
                 }
             }
         }
-    }    
+        return rgbPartMatrix;
+    }
+    
+    private static SimpleMatrix[] getMatrixPart(BufferedImage image, Dimension resolution, int part){
+        SimpleMatrix[] rgbPartMatrix = new SimpleMatrix[3];
+        for(int i = 0; i < 3; i++){
+            SimpleMatrix colorMatrix = new SimpleMatrix(resolution.height, resolution.width);
+            rgbPartMatrix[i] = colorMatrix;
+        }
+        
+        int imgWidth = image.getWidth();
+        int imgHeight = image.getHeight();
+        
+        for(int matrixArrayPos=0; matrixArrayPos < 3; matrixArrayPos++){
+            for(int heightPos=(imgHeight / 4) * part; heightPos < (imgHeight / 4) * (part + 1); heightPos++){
+                for(int widthPos=(imgWidth / 4) * part; widthPos < (imgWidth / 4) * (part + 1); widthPos++){
+                    Color pixColor = new Color(image.getRGB(widthPos, heightPos));
+                    rgbPartMatrix[matrixArrayPos].set(heightPos, widthPos, (matrixArrayPos == 0 ? pixColor.getRed() : (matrixArrayPos == 1 ? pixColor.getGreen() : pixColor.getBlue())));
+                }
+            }
+        }
+        return rgbPartMatrix;
+    }
             
     //Old Version
     //very complicated and useless using a CNN
@@ -245,112 +279,4 @@ public class useImage {
 //        
 //        imageDisplay.setVisible(true);
 //    }
-    
-    private int testStepOver(int i, int width, ArrayList<Integer> arr){
-        int steps = 0;
-        if( i % width != 0 || i == 0){
-            return steps;
-        }
-        if(arr.size() == 1){
-            return 1;
-        }
-        int testNumber = i / width;
-        
-        for(int j = 1; j < arr.size(); j++){
-            if(testNumber % arr.get(j - 1) == 0){
-                steps++;
-                testNumber = testNumber / arr.get(j);
-            }
-        }
-        return steps;
-    }
-    
-    public static void startTraningCycle(int cycles, String trueImageFolderPath, String falseImageFolderPath, CNNetwork network){
-        try {
-            File[] trueImages = new File(trueImageFolderPath).listFiles();
-            File[] falseImages = new File(falseImageFolderPath).listFiles();
-            useImage getImageData;
-            TagImages results = new TagImages(trueImageFolderPath);
-            for(int i=0; i < cycles; i++){
-                if(!pause && !cancleTraining){
-                    double rand = Math.random() * 2;
-                    if(rand <= 1){
-                        rand = (Math.random() * trueImages.length);
-                        try{
-                            BufferedImage img = ImageIO.read(trueImages[(int)rand]);
-                            getImageData = new useImage(img, trueImages[(int)rand].getName());
-                            String[] nameInfoRaw = trueImages[(int)rand].getName().split("_");
-                            NameInfo nameInfo = new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-                            
-                            double[] convertedResult = covertResult(results.getResultMap(nameInfo), getImageData.div);
-                            
-                            network.train(getImageData.rgbMatrix, convertedResult);
-                            NNTest.newGui.updateMainProcess(i + 1, cycles);
-                        } catch (IllegalArgumentException e) {}
-                        catch(Exception e){
-                            System.out.println(e);
-                            i--;
-                            continue;
-                        }
-                    }else{
-                        rand = Math.random() * falseImages.length;
-                        try{
-                            BufferedImage img = ImageIO.read(falseImages[(int)rand]);
-                            getImageData = new useImage(img, trueImages[(int)rand].getName());
-                            String[] nameInfoRaw = falseImages[(int)rand].getName().split("_");
-                            NameInfo nameInfo = new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-                            
-                            double[] convertedResult = covertResult(results.getResultMap(nameInfo), getImageData.div);
-                            
-                            network.train(getImageData.rgbMatrix, convertedResult);
-                            NNTest.newGui.updateMainProcess(i + 1, cycles);
-                        } catch (IllegalArgumentException e) {}
-                        catch(Exception e){
-                            i--;
-                            continue;
-                        }
-                    }
-                    if((i % 2000 == 0 && i != 0) || (i + 1 == cycles && cycles >= 100)){
-                        network.saveNetworkWeights();
-                    }
-                }else{
-                    while(pause){
-                        if(cancleTraining){
-                            cancleTraining = false;
-                            pause = false;
-                            NNTest.newGui.setTrainingButtons();
-                            return;
-                        }
-                        Thread.sleep(500);
-                    }
-                }
-            }
-            NNTest.newGui.setTrainingButtons();
-        } catch (Exception ex) {
-            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private static double[] covertResult(Integer[] result, ImageDivider divider){
-        double[] convert = new double[4];
-        
-        convert[0] = (double)result[0] / divider.divider;
-        convert[1] = (double)result[1] / divider.divider;
-        convert[2] = (double)result[2] / divider.divider;
-        convert[3] = (double)result[3] / divider.divider;
-        
-        return convert;
-    }
-     
-    public static void pause(){
-        pause = true;
-    }
-    
-    public static void cancelPause(){
-        pause = false;
-    }
-    
-    public static void cancelTraining(){
-        cancleTraining = true;
-    }
 }

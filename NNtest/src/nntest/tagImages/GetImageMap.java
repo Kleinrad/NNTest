@@ -30,7 +30,7 @@ public class GetImageMap {
         for (int i = 0; i < imageFiles.length; i++) {
             File img = imageFiles[i];
            
-            NameInfo imgInfo = getImageNameInfo(img.getName());
+            NameInfo imgInfo = nntest.NetworkUntils.getImageNameInfo(img.getName());
             Matcher nameAbmMatcher = abmTest.matcher(imgInfo.name);
             Matcher nameAliyMatcher = aliyTest.matcher(imgInfo.name);
             Matcher nameBesMatcher = besTest.matcher(imgInfo.name);
@@ -4753,13 +4753,6 @@ public class GetImageMap {
             return faceLocation;
         }
         throw new Exception("tagging");
-    }
-
-    private static NameInfo getImageNameInfo(String name) {
-        String[] nameInfoRaw = name.split("_");
-        NameInfo nameInfo = new NameInfo(nameInfoRaw[0], Integer.parseInt(nameInfoRaw[1]));
-
-        return nameInfo;
     }
 
     private static Integer[] getFaceLocation(int x1, int y1, int x2, int y2) {

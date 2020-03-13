@@ -7,25 +7,35 @@ package TestEnviroment;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import nntest.useImage;
+import org.ejml.simple.SimpleMatrix;
 
 /**
  *
  * @author fabia
  */
 public class MainPageCenter extends javax.swing.JPanel {
-
+    private nntest.CNNetwork net;
     
     private DefaultListModel listModel = new DefaultListModel();
     
     private ImageIcon imgPreview = new ImageIcon(".\\misc\\img\\noImage.jpg");
     
-    private ImageIcon runIdleIcon = new ImageIcon(".\\misc\\img\\runNoToggle.png");
-    private ImageIcon runToggleIcon = new ImageIcon(".\\misc\\img\\runToggle.png");
+    private ImageIcon runIdleIcon = new ImageIcon(".\\misc\\img\\runButton\\runNoToggle.png");
+    private ImageIcon runToggleIcon = new ImageIcon(".\\misc\\img\\runButton\\runToggle.png");
     
     private ImageIcon uploadIdleIcon = new ImageIcon(".\\misc\\img\\imageIcon.png");
     private ImageIcon uploadToggleIcon = new ImageIcon(".\\misc\\img\\imageIconToggle.png");
@@ -34,19 +44,26 @@ public class MainPageCenter extends javax.swing.JPanel {
     private ImageIcon trainIdleIcon = new ImageIcon(".\\misc\\img\\trainNoToggle.png");
     
     private double previewScale = 0.5;
+    private File imgFile;
+    private Dimension imgDimension = new Dimension();
+    private boolean runLoading = false;
+    
+    public boolean callTrainInfo = false;
+    
     /**
      * Creates new form MainPageCenter
      */
-    public MainPageCenter() {
+    public MainPageCenter(nntest.CNNetwork net) {
+        this.net = net;
         initComponents();
         startUp();
     }
     
     private void startUp(){
-        paint(south2, EnvUtils.primColor);
-        paint(southPanel, EnvUtils.primColor);
-        paint(imageField, EnvUtils.primColor);
-        paint(imageContainer, EnvUtils.primColor);
+        EnvUtils.paint_(south2, EnvUtils.primColor);
+        EnvUtils.paint_(southPanel, EnvUtils.primColor);
+        EnvUtils.paint_(imageField, EnvUtils.primColor);
+        EnvUtils.paint_(imageContainer, EnvUtils.primColor);
         
         runButton.setIcon(runIdleIcon);
         uploadButton.setIcon(uploadIdleIcon);
@@ -57,6 +74,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         imageField.setBackground(EnvUtils.primColor);
         imageContainer.setBorder(EnvUtils.buttonBorder);
         
+        jList1.setForeground(EnvUtils.primForground);
         jList1.setBackground(EnvUtils.listColor);
         jList1.setModel(listModel);
     }
@@ -71,14 +89,11 @@ public class MainPageCenter extends javax.swing.JPanel {
         
         Image convImage = imgPreview.getImage().getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
         image.setIcon(new ImageIcon(convImage));
+        imgDimension.height = imgHeight;
+        imgDimension.width = imgWidth;
     }
     
-    private static void paint(JComponent comp, Color color){
-        for(Component c : comp.getComponents()){
-            c.setBackground(color);
-        }
-        comp.setBackground(color);
-    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -174,8 +189,29 @@ public class MainPageCenter extends javax.swing.JPanel {
     private void runButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMousePressed
         runButton.setIcon(runToggleIcon);
         runButton.setBorder(EnvUtils.buttonBorder);
+        repaint();
+        setLoading(true);
+        CompletableFuture.runAsync(() -> runLoading());
+        CompletableFuture.runAsync(() -> startPredict());
     }//GEN-LAST:event_runButtonMousePressed
-
+    
+    private void startPredict(){
+        try {
+            useImage img = new useImage();
+            BufferedImage bImage = ImageIO.read(imgFile);
+            SimpleMatrix[] rgbMatrix = img.getWholeMatrix(bImage);
+            double[] erg = net.predict(rgbMatrix, imgDimension);
+            
+            for(double x : erg){
+                listModel.addElement(x);
+            }
+            setLoading(false);
+            runLoading = false;
+        } catch (IOException ex) {
+            Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     private void runButtonMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMouseReleased
         runButton.setIcon(runIdleIcon);
         runButton.setBorder(null);
@@ -188,6 +224,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         int result = fchooser.showOpenDialog(this);
         if(result == JFileChooser.APPROVE_OPTION){
             imgPreview = new ImageIcon(fchooser.getSelectedFile().getPath());
+            imgFile = fchooser.getSelectedFile();
         }
         updatePreviewImg();
         uploadButton.setBorder(null);
@@ -197,8 +234,8 @@ public class MainPageCenter extends javax.swing.JPanel {
     private void trainButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_trainButtonMousePressed
         trainButton.setIcon(trainToggleIcon);
         trainButton.setBorder(EnvUtils.buttonBorder);
+        callTrainInfo = true;
     }//GEN-LAST:event_trainButtonMousePressed
-
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler2;
@@ -234,5 +271,48 @@ public class MainPageCenter extends javax.swing.JPanel {
     public void refresh(){
         updatePreviewImg();
         repaint();
+    }
+    
+    private void setLoading(boolean isLoading){
+        for(Component c : this.getComponents()){
+            c.setEnabled(isLoading);
+            c.setCursor(isLoading ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : Cursor.getDefaultCursor());
+        }
+    }
+    
+    private void runLoading(){
+        runLoading = true;
+        
+        for(int i=0; i < 3; i++){
+            try {
+                ImageIcon icon = new ImageIcon(".\\misc\\img\\runButton\\loading\\loading" + i + ".png");
+                runButton.setIcon(icon);
+                Thread.sleep(80);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        while(runLoading){
+            for(int i=3; i < 12; i++){
+                try {
+                    ImageIcon icon = new ImageIcon(".\\misc\\img\\runButton\\loading\\loading" + i + ".png");
+                    runButton.setIcon(icon);
+                    Thread.sleep(70);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+        for(int i=12; i <= 17; i++){
+            try {
+                ImageIcon icon = new ImageIcon(".\\misc\\img\\runButton\\loading\\loading" + i + ".png");
+                runButton.setIcon(icon);
+                Thread.sleep(70);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

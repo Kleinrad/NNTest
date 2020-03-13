@@ -14,7 +14,7 @@ import nntest.NameInfo;
  * @author fabia
  */
 public class TagImages {
-    TreeMap<Integer, Integer[]> resultMap;
+    public TreeMap<Integer, Integer[]> resultMap;
     
     public TagImages(String path) {
         this.resultMap = GetImageMap.getResultMap(path);
