@@ -5,6 +5,7 @@
  */
 package nntest;
 
+import TestEnviroment.RunDialog;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

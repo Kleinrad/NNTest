@@ -5,8 +5,15 @@
  */
 package nntest;
 
+import TestEnviroment.RunDialog;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ejml.simple.SimpleMatrix;
@@ -28,7 +35,7 @@ public class CNNetwork {
     
     private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
-    private int fcFirstLayerCount = 0;
+    private int fcFirstLayerCount = 27144;
     
     
     private Integer[] convReps = {2, 3};
@@ -62,12 +69,12 @@ public class CNNetwork {
     }
     
     private SimpleMatrix[] dropOut(SimpleMatrix[] inMatrixs){
-        int amountDropOut = (int)((inMatrixs.length * inMatrixs[0].elementSum()) * dropOutChance);
+        int amountDropOut = (int)((inMatrixs.length * inMatrixs[0].getNumElements()) * dropOutChance);
         for(int i = 0; i < amountDropOut; i++){
             int matrix = (int)(Math.random() * 3);
-            int elementSum = (int)inMatrixs[matrix].elementSum();
-            int index = (int)(Math.random() * elementSum);
-            inMatrixs[matrix >= 3 ? 2 : matrix].set(index >= elementSum ? elementSum : index, 0);
+            int elementCount = (int)inMatrixs[matrix].getNumElements();
+            int index = (int)(Math.random() * elementCount);
+            inMatrixs[matrix >= 3 ? 2 : matrix].set(index >= elementCount ? elementCount : index, 0);
         }
         return inMatrixs;
     }
@@ -85,6 +92,7 @@ public class CNNetwork {
                 Integer[] hiddenNums = {5000, 500};
                 fCLayer = new FFNetwork(fcFirstLayerCount, hiddenNums, 4, 2);
             }
+            
             return fCLayer.feedForward(inceptionVector);
         } catch (Exception ex) {
             Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
@@ -141,8 +149,10 @@ public class CNNetwork {
     }
     //Flattens output of convolution Layers
     private SimpleMatrix flattenCLO(SimpleMatrix[][] inputMatrixs){
-        if(fcFirstLayerCount == 0){
-            fcFirstLayerCount = inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].getNumElements();
+        if(fcFirstLayerCount != inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].getNumElements()){
+            throw new IllegalArgumentException("Specified element is out of bounds: " + 
+                    inputMatrixs.length * inputMatrixs[0].length * inputMatrixs[0][0].getNumElements() + "/" + 
+                    fcFirstLayerCount);
         }
         SimpleMatrix vector = new SimpleMatrix(fcFirstLayerCount, 1);
         int idx = 0;
@@ -164,8 +174,99 @@ public class CNNetwork {
         fCLayer.train(inceptionOutput, targets_arr);
     }
     
-    public void saveInstance(){
+    public void saveInstance(RunDialog runDialog){
+        BufferedWriter writer = null;
         
+        try {
+            File saveFile = new File("saveFile.txt");
+            String saveString = "";
+            for(SimpleMatrix[][] filters2 : filters){
+                for(SimpleMatrix[] filters1 : filters2){
+                    for(SimpleMatrix filter : filters1){
+                        saveString += filter.get(0);
+                        for(int i = 1; i < filter.getNumElements(); i++){
+                            saveString += "||" + filter.get(i);
+                        }
+                        saveString += "|1|";
+                    }
+                    saveString += "|2|";
+                runDialog.setProgress(5);
+                }
+            }   saveString += "|F/W|";
+            runDialog.setProgress(15);
+            saveString += fCLayer.getWeigthString(runDialog);
+            writer = new BufferedWriter(new FileWriter(saveFile));
+            writer.write(saveString);
+            runDialog.setProgress(1000);
+        } catch (IOException ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException ex) {
+                Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public void saveInstance(){
+        BufferedWriter writer = null;
+        
+        try {
+            File saveFile = new File("saveFile.txt");
+            String saveString = "";
+            for(SimpleMatrix[][] filters2 : filters){
+                for(SimpleMatrix[] filters1 : filters2){
+                    for(SimpleMatrix filter : filters1){
+                        saveString += filter.get(0);
+                        for(int i = 1; i < filter.getNumElements(); i++){
+                            saveString += "||" + filter.get(i);
+                        }
+                        saveString += "|1|";
+                    }
+                    saveString += "|2|";
+                }
+            }   saveString += "|F/W|";
+            saveString += fCLayer.getWeigthString();
+            writer = new BufferedWriter(new FileWriter(saveFile));
+            writer.write(saveString);
+        } catch (IOException ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException ex) {
+                Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public void readInstance(){
+        try {
+            File saveFile = new File("saveFile.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(saveFile));
+            String readString = reader.readLine();
+            String[] filter_Weights = readString.split("|F/W|");
+            
+            String[] filtersString = filter_Weights[0].split("|2|");
+            for(int i=0; i < 2; i++){
+                String[] filters = filtersString[i].split("|1|");
+                for(int j=0; j < convReps[i]; i++){
+                    String[] filter = filters[j].split("||");
+                    for(int k=0; k < filter.length; k++){
+                        this.filters[i][j][k].set(k, Double.parseDouble(filter[k]));
+                    }
+                }
+            }
+            
+            fCLayer.setWeights(filter_Weights[1]);
+        } catch (IOException ex) {
+            Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 //    private double predictXception(SimpleMatrix[] resMatrixs){

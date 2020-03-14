@@ -69,7 +69,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
      */
     public void setNet(CNNetwork net){
         this.net = net;
-        mainPageCenter1 = new MainPageCenter(net);
+        mainPageCenter1 = new MainPageCenter(net, this);
         trainInfoDialog.start();
     }
     
@@ -127,27 +127,7 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                 Logger.getLogger(NNTestEnviroment.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-    
-    public NNTestEnviroment(MainPageCenter mainPageCenter1, CNNetwork net, CMenuBar cMenuBar1, JMenuItem decreaseScale, JMenu editMenu, JMenu fileMenu, JMenuItem increaseScale, JMenuItem jMenuItem1, JMenuItem jMenuItem2, JMenu previewMenu, JMenu viewMenu) throws HeadlessException {
-        this.mainPageCenter1 = mainPageCenter1;
-        this.net = net;
-        this.cMenuBar1 = cMenuBar1;
-        this.decreaseScale = decreaseScale;
-        this.editMenu = editMenu;
-        this.fileMenu = fileMenu;
-        this.increaseScale = increaseScale;
-        this.jMenuItem1 = jMenuItem1;
-        this.jMenuItem2 = jMenuItem2;
-        this.previewMenu = previewMenu;
-        this.viewMenu = viewMenu;
-    }
-    
-    
-    public NNTestEnviroment(CNNetwork net) {
-        mainPageCenter1 = new MainPageCenter(net);
-        initComponents();
-    }
+    }   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -193,6 +173,11 @@ public class NNTestEnviroment extends javax.swing.JFrame {
         jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem2.setMnemonic('L');
         jMenuItem2.setText("Load Instance");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
         fileMenu.add(jMenuItem2);
 
         cMenuBar1.add(fileMenu);
@@ -250,13 +235,28 @@ public class NNTestEnviroment extends javax.swing.JFrame {
     }//GEN-LAST:event_increaseScaleActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        // TODO add your handling code here:
+        RunDialog saveDialog = new RunDialog(this, true);
+        Thread saveThread = new Thread(() -> net.saveInstance(saveDialog));
+        saveThread.start();
+        
+        saveDialog.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        net.readInstance();
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    public void enableFileMenu(){
+       jMenuItem1.setEnabled(true);
+       jMenuItem2.setEnabled(true);
+    }
+    
     private void init (){
         cMenuBar1.setColor(EnvUtils.barColor);
         cMenuBar1.setBorder(BorderFactory.createLineBorder(EnvUtils.primColor));
-
+        jMenuItem1.setEnabled(false);
+        jMenuItem2.setEnabled(false);
+        
         for(int i=0; i < cMenuBar1.getMenuCount(); i++){
             cMenuBar1.getMenu(i).setForeground(EnvUtils.primForground);
         }

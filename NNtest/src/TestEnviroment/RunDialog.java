@@ -108,7 +108,7 @@ public class RunDialog extends javax.swing.JDialog {
     public void setProgress(int progress){
         jLabel2.setFont(jLabel1.getFont());
         jProgressBar1.setValue(progress);
-        if(progress == 100){
+        if(progress == 1000){
             runConfirmButton.setVisible(true);
         }
     }

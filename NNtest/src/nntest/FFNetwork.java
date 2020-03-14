@@ -5,14 +5,9 @@
  */
 package nntest;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import TestEnviroment.RunDialog;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.ejml.simple.SimpleMatrix;
 
 /**
@@ -176,6 +171,73 @@ public class FFNetwork {
     
     
     //Help Functions 
+    
+    public String getWeigthString (RunDialog runDialog){
+        String fcWeightString = "";
+        System.out.println(weights_ih.getNumElements());
+        fcWeightString += weights_ih.get(0);
+        for(int i=1; i < weights_ih.getNumElements(); i++){
+            fcWeightString += "|ih|" + weights_ih.get(i);
+        }
+        runDialog.setProgress(30);
+        fcWeightString += "|weight|";
+        for(SimpleMatrix weights_h : weights_hidden){
+            fcWeightString += weights_h.get(0);
+            for(int i=1; i < weights_h.getNumElements(); i++){
+                fcWeightString += "|h|" + weights_h.get(i);
+            }
+            fcWeightString += "|ha|";
+        }
+        runDialog.setProgress(60);
+        fcWeightString += "|weight|";
+        fcWeightString += weights_ho.get(0);
+        for(int i=1; i < weights_ho.getNumElements(); i++){
+            fcWeightString += "|o|" + weights_ho.get(i);
+        }
+        runDialog.setProgress(85);
+        return fcWeightString;
+    }
+    
+    public String getWeigthString (){
+        String fcWeightString = "";
+        System.out.println(weights_ih.getNumElements());
+        for(int i=1; i < weights_ih.getNumElements(); i++){
+            fcWeightString += "|ih|" + weights_ih.get(i);
+        }
+        fcWeightString += "|weight|";
+        for(SimpleMatrix weights_h : weights_hidden){
+            fcWeightString += weights_h.get(0);
+            for(int i=1; i < weights_h.getNumElements(); i++){
+                fcWeightString += "|h|" + weights_h.get(i);
+            }
+            fcWeightString += "|ha|";
+        }
+        fcWeightString += "|weight|";
+        fcWeightString += weights_ho.get(0);
+        for(int i=1; i < weights_ho.getNumElements(); i++){
+            fcWeightString += "|o|" + weights_ho.get(i);
+        }
+        return fcWeightString;
+    }
+    
+    public void setWeights (String weightString){
+        String[] weights = weightString.split("|weight|");
+        String[] weightsIh = weights[0].split("|ih|");
+        for(int i=0; i < weightsIh.length; i++){
+            weights_ih.set(i, Double.parseDouble(weightsIh[i]));
+        }
+        String[] weightsH = weights[1].split("|ha|");
+        for(int i=0; i < weightsH.length; i++){
+            String[] hiddenWeights = weightsH[i].split("|h|");
+            for(int j=0; j < hiddenWeights.length; j++){
+                weights_hidden.get(i).set(j, Double.parseDouble(hiddenWeights[j]));
+            }
+        }
+        String[] weightsHo = weights[2].split("|o|");
+        for(int i=0; i < weightsHo.length; i++){
+            weights_ho.set(i, Double.parseDouble(weightsHo[i]));
+        }
+    }
     
     //Sigmoid Fuction return relativ to the input a number between 0 and 1
     private static double sigmoid(double x){

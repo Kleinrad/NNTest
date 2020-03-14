@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import nntest.useImage;
 import org.ejml.simple.SimpleMatrix;
 
@@ -45,16 +46,19 @@ public class MainPageCenter extends javax.swing.JPanel {
     
     private double previewScale = 0.5;
     private File imgFile;
+    private NNTestEnviroment parent;
     private Dimension imgDimension = new Dimension();
     private boolean runLoading = false;
+    private Thread predictThread = null;
     
     public boolean callTrainInfo = false;
     
     /**
      * Creates new form MainPageCenter
      */
-    public MainPageCenter(nntest.CNNetwork net) {
+    public MainPageCenter(nntest.CNNetwork net, NNTestEnviroment parent) {
         this.net = net;
+        this.parent = parent;
         initComponents();
         startUp();
     }
@@ -184,7 +188,6 @@ public class MainPageCenter extends javax.swing.JPanel {
 
         add(imageProperties, java.awt.BorderLayout.EAST);
     }// </editor-fold>//GEN-END:initComponents
-
     
     private void runButtonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_runButtonMousePressed
         runButton.setIcon(runToggleIcon);
@@ -192,8 +195,20 @@ public class MainPageCenter extends javax.swing.JPanel {
         repaint();
         setLoading(true);
         CompletableFuture.runAsync(() -> runLoading());
-        CompletableFuture.runAsync(() -> startPredict());
+        predictThread = new Thread(() -> startPredict());
+        predictThread.start();
     }//GEN-LAST:event_runButtonMousePressed
+    
+    private boolean interruptPredict(){
+        if(predictThread != null){
+            predictThread.interrupt();
+            predictThread = null;
+            setLoading(false);
+            runLoading = false;
+            return true;
+        }
+        return false;
+    }
     
     private void startPredict(){
         try {
@@ -207,6 +222,7 @@ public class MainPageCenter extends javax.swing.JPanel {
             }
             setLoading(false);
             runLoading = false;
+            parent.enableFileMenu();
         } catch (IOException ex) {
             Logger.getLogger(MainPageCenter.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -223,6 +239,7 @@ public class MainPageCenter extends javax.swing.JPanel {
         JFileChooser fchooser = new JFileChooser();
         int result = fchooser.showOpenDialog(this);
         if(result == JFileChooser.APPROVE_OPTION){
+            interruptPredict();
             imgPreview = new ImageIcon(fchooser.getSelectedFile().getPath());
             imgFile = fchooser.getSelectedFile();
         }
