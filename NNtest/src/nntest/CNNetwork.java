@@ -21,14 +21,13 @@ public class CNNetwork {
     //Variables to calculate The Accuracy
     private int computed = 0;
     private int correctComputed = 0;
-    private double dropOutChance = 0;
+    private double dropOutChance = 0.5;
     private String arc;
     private Dimension imgDimension = new Dimension();
     private FFNetwork fCLayer = null;
     
     private SimpleMatrix[][][] filters = new SimpleMatrix[2][][];
 
-    private SimpleMatrix[] weights = new SimpleMatrix[3];
     private int fcFirstLayerCount = 0;
     
     
@@ -60,6 +59,17 @@ public class CNNetwork {
                 filters[1][i][j] = initFilter(3);
             }
         }
+    }
+    
+    private SimpleMatrix[] dropOut(SimpleMatrix[] inMatrixs){
+        int amountDropOut = (int)(inMatrixs.length * inMatrixs[0].elementSum());
+        for(int i = 0; i < amountDropOut; i++){
+            int matrix = (int)(Math.random() * 3);
+            int elementSum = (int)inMatrixs[matrix].elementSum();
+            int index = (int)(Math.random() * elementSum);
+            inMatrixs[matrix >= 3 ? 2 : matrix].set(index >= elementSum ? elementSum : index, 0);
+        }
+        return inMatrixs;
     }
     
     //inputMatrixs is the output of useImage | arc is the used architecture
@@ -97,6 +107,7 @@ public class CNNetwork {
             inMatrix = resFirstCycle[i];
             
             resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
+            resFirstCycle[i] = dropOut(resFirstCycle[i]);
             NetworkUntils.raiseIterationProgress();
         }
         System.out.println(resFirstCycle[0][0].get(0));
