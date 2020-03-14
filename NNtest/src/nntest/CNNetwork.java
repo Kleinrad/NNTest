@@ -62,7 +62,7 @@ public class CNNetwork {
     }
     
     private SimpleMatrix[] dropOut(SimpleMatrix[] inMatrixs){
-        int amountDropOut = (int)(inMatrixs.length * inMatrixs[0].elementSum());
+        int amountDropOut = (int)((inMatrixs.length * inMatrixs[0].elementSum()) * dropOutChance);
         for(int i = 0; i < amountDropOut; i++){
             int matrix = (int)(Math.random() * 3);
             int elementSum = (int)inMatrixs[matrix].elementSum();
