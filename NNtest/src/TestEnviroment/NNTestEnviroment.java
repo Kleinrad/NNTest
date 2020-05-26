@@ -92,13 +92,11 @@ public class NNTestEnviroment extends javax.swing.JFrame {
                     inputImgs.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     inputImgs.showOpenDialog(this);
                     lastImgPath = inputImgs.getSelectedFile().getPath();
-                    System.out.println("-1");
                     Thread progressDialog = new Thread(() -> updateProgress(getTrainInfo.iterations));
                     Thread trainThread = new Thread(() -> NetworkUntils.trainCycle(getTrainInfo.iterations,
                                                                                    getTrainInfo.saveInterval, 
-                                                                                   net, inputImgs.getSelectedFiles(), 
+                                                                                   net, inputImgs.getSelectedFile().listFiles(), 
                                                                                    inputImgs.getSelectedFile().getPath()));
-                    System.out.println("0");
                     trainThread.start();
                     progressDialog.start();
                     trainProgress.setVisible(true);

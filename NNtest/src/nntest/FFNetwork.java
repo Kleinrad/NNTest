@@ -86,7 +86,7 @@ public class FFNetwork {
         }else if(targets_arr.length != weights_ho.numRows()){
             throw new Exception("Result is not valid. It must match up with output nodes!");    
         }
-        
+        System.out.println("3");
         //Multiplay weights_ih with input Matrix | Get Weighted Sum
         SimpleMatrix inputWeightedSums = new SimpleMatrix(weights_ih.numCols(), 1);
         for(int i = 0; i < weights_ih.numCols();){
@@ -110,7 +110,7 @@ public class FFNetwork {
         for(int i = 0; i < weights_ho.numCols();){
             outputWeightedSums.set(i, weights_ho.cols(i, ++i).elementMult(hiddenWeightedSums[hiddenWeightedSums.length - 1]).elementSum());
         }
-        
+         System.out.println("4");
         outputWeightedSums = activation(outputWeightedSums);
         
         SimpleMatrix targets = toMatrix(targets_arr);
@@ -125,7 +125,7 @@ public class FFNetwork {
         //System.out.println(gradient);
         gradient = gradient.elementMult(errors_o);
         gradient = multScalar(learning_rate, gradient);
-        
+         System.out.println("5");
         weights_delta = gradient.mult(hiddenWeightedSums[hiddenWeightedSums.length - 1].transpose());
         
         //calculating the error of hidden Layers
@@ -144,6 +144,7 @@ public class FFNetwork {
             
             weights_hidden.set(i - 1, weights_hidden.get(i - 1).plus(weights_delta));
             errors_h = weights_hidden.get(i - 1).transpose().mult(errors_h);
+             System.out.println(5 + i);
         }
         
         //calculate first hidden errors for ih
@@ -152,7 +153,7 @@ public class FFNetwork {
         gradient = dsigmoid(hiddenWeightedSums[0]);
         gradient = gradient.elementMult(errors_h);
         gradient = multScalar(learning_rate, gradient);
-        
+         System.out.println(7);
         weights_delta = gradient.mult(input.transpose());
         weights_ih = weights_ih.plus(weights_delta);
         NetworkUntils.raiseIterationProgress();
@@ -171,6 +172,10 @@ public class FFNetwork {
     
     
     //Help Functions 
+    
+    private void printMatrixStats(SimpleMatrix m){
+        System.out.println("Rows: " + m.numRows() + " | Cols: " + m.numCols());
+    }
     
     public String getWeigthString (RunDialog runDialog){
         String fcWeightString = "";

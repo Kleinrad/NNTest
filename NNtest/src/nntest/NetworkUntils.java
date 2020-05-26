@@ -52,13 +52,13 @@ public class NetworkUntils {
         for(int i=0; i < iterations; i++){
             try {
                 int img = (int)(Math.random() * inputImgs.length);
-                if(i % saveInterval == 0){
+                if(i % saveInterval == 0 && i != 0){
                     net.saveInstance();
                 }
                 BufferedImage bufferedImage = ImageIO.read(inputImgs[img]);
                 SimpleMatrix[] imgMatrix = useImage.getMatrix(bufferedImage);
                 
-                net.train(imgMatrix, imgTag.resultMap.get(getImageNameInfo(inputImgs[img].getName())));
+                net.train(imgMatrix, imgTag.resultMap.get(nntest.tagImages.GetImageMap.getHash(getImageNameInfo(inputImgs[img].getName()))));
                 trainProgress++;
                 iterationProgress=0;
                 avgTimePerIteration = (System.nanoTime() - startTime) / i;

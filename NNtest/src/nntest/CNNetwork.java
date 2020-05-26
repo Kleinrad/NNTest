@@ -66,6 +66,11 @@ public class CNNetwork {
                 filters[1][i][j] = initFilter(3);
             }
         }
+        
+        if(fCLayer == null){
+            Integer[] hiddenNums = {5000, 500};
+            fCLayer = new FFNetwork(fcFirstLayerCount, hiddenNums, 4, 2);
+        }
     }
     
     private SimpleMatrix[] dropOut(SimpleMatrix[] inMatrixs){
@@ -88,11 +93,6 @@ public class CNNetwork {
             }
             SimpleMatrix inceptionVector = inceptionCycle(inputMatrixs);
             
-            if(fCLayer == null){
-                Integer[] hiddenNums = {5000, 500};
-                fCLayer = new FFNetwork(fcFirstLayerCount, hiddenNums, 4, 2);
-            }
-            
             return fCLayer.feedForward(inceptionVector);
         } catch (Exception ex) {
             Logger.getLogger(CNNetwork.class.getName()).log(Level.SEVERE, null, ex);
@@ -107,19 +107,20 @@ public class CNNetwork {
             SimpleMatrix[] inMatrix = resMatrixs;
             resFirstCycle[i] = covolute(inMatrix, filters[0][i][0], imgDimension);
             inMatrix = resFirstCycle[i];
-            
+             System.out.println("44");
             resFirstCycle[i] = relu(inMatrix, imgDimension);
             inMatrix = resFirstCycle[i];
             
             resFirstCycle[i] = covolute(inMatrix, filters[0][i][1], imgDimension);
             inMatrix = resFirstCycle[i];
-            
+             System.out.println("45");
             resFirstCycle[i] = maxPooling(inMatrix, 6, imgDimension);
             resFirstCycle[i] = dropOut(resFirstCycle[i]);
             NetworkUntils.raiseIterationProgress();
         }
         System.out.println(resFirstCycle[0][0].get(0));
         SimpleMatrix[][] resSecCycle = new SimpleMatrix[convReps[1] * resFirstCycle.length][];
+         System.out.println("46");
         for(int i=0; i < convReps[1]; i++){
             for(int j=0; j < resFirstCycle.length; j++){
                 int outPos = i * resFirstCycle.length + j;
@@ -133,7 +134,7 @@ public class CNNetwork {
                 
                 outMatrix = covolute(inMatrix, filters[1][i][1], imgDimension);
                 inMatrix = outMatrix;
-                
+                System.out.println("47");
                 outMatrix = relu(inMatrix, imgDimension);
                 inMatrix = outMatrix;
                 
@@ -144,6 +145,7 @@ public class CNNetwork {
             }
             NetworkUntils.raiseIterationProgress();
         }
+         System.out.println("48");
         System.out.println(resSecCycle[0][0].get(0));
         return flattenCLO(resSecCycle);
     }

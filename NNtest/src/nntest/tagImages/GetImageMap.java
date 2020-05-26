@@ -365,7 +365,7 @@ public class GetImageMap {
         return map;
     }
 
-    private static int getHash(NameInfo imgInfo){
+    public static int getHash(NameInfo imgInfo){
         return imgInfo.number.hashCode() + imgInfo.name.hashCode();
     }
     
